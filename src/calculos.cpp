@@ -306,7 +306,6 @@ void calculos::rank(int num_sol) {
 		copy_sol[p].crowding=0;			//inicializa el crowding de toda la poblacion a 0
 	}
 
-
 	p=0;
 	max_front=i;			//max_front obtiene la cantidad de rangos que hay
 	for (i=1;i < max_front;i++) {
@@ -323,7 +322,7 @@ void calculos::rank(int num_sol) {
 		copy_sol[p].crowding=copy_sol[p+ranks_size[i]-1].crowding=DBL_MAX;
 		for (p++;p < ini+ranks_size[i];p++)
 			if (copy_sol[p].crowding != DBL_MAX)
-				copy_sol[p].crowding+=(copy_sol[p+1].S - copy_sol[p-1].S)/(max_satis - min_satis);
+				copy_sol[p].crowding +=(copy_sol[p+1].S - copy_sol[p-1].S)/(max_satis - min_satis);
 
 		qsort(&copy_sol[ini+1],ranks_size[i],sizeof(individuo),compare_crowding); //por último volvemos a ordenar
 		p=ini+1+ranks_size[i];

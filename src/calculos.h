@@ -59,9 +59,9 @@ class calculos {
 		void mejorarInd(int mejor[], int peor[], individuo *newInd);
 
 		void calculate_bounds(int num_sol);
-		int compare_efort(const void *a, const void *b) ;
-		int compare_satis(const void *a, const void *b) ;
-		int compare_crowding(const void *a, const void *b) ;
+		static int compare_efort(const void *a, const void *b) ;
+		static int compare_satis(const void *a, const void *b) ;
+		static int compare_crowding(const void *a, const void *b) ;
 
 		void rank(int num_sol);
 
