@@ -17,22 +17,25 @@ class calculos {
 
 	leerfich lf;			//instancia de leerficheros
 
-	int population;			//cantidad de poblacion
+	int sol_log;
+	int aprender;
+
+	int population;			//cantidad de población
 	int nCharcos;			//numero de charcos
 	int sizeCharco;			//tamaño del charco
 	int evaluaciones; 		//cantidad de evaluaciones
 	int evCharco;			//evaluaciones por charco
 
-	int min_efort;
-	int max_efort;
-	int min_satis;
-	int max_satis;
+	int min_efort;			//mínimo esfuerzo que hay en la población
+	int max_efort;			//máximo esfuerzo que hay en la población
+	int min_satis;			//mínima satisfacción que hay en la población
+	int max_satis;			//máxima satisfacción que hay en la población
 
 	struct individuo {
-		int *X;				//resulatado de cada individuo
+		int *X;				//resultado de cada individuo
 		int S; 				//satisfaccion que causa al realizarse
-		int E; 				//esfurezo que requiere el individuo
-		int rank;			//raning de dominancia
+		int E; 				//esfuerzo que requiere el individuo
+		int rank;			//ranking de dominancia
 		double crowding;	//distancia crowding
 	};
 	individuo *poblacion; 	//poblacion de individuos
@@ -43,11 +46,15 @@ class calculos {
 	struct memeplex{ //charcos de individuos
 		individuo *inds;
 	};
-	memeplex *charcos;
+	memeplex *charcos;	//puntero a charcos
 
 	public:
 		calculos();
-		void frog();
+
+		int frog(ofstream &log);
+
+		void generarPobl();
+		void generarRand(individuo *ind);
 
 		void repartir();
 		void reagrupar();
@@ -55,17 +62,20 @@ class calculos {
 		void calcularSyE(individuo *ind);
 		int  domina(individuo *a,individuo *b);
 		void ordIntercambio ();
-		void mejorar();
+		void mejorar(ofstream &log);
 		void mejorarInd(int mejor[], int peor[], individuo *newInd);
+		
 
-		void calculate_bounds(int num_sol);
+		void calculate_bounds(int num_sol,  individuo *listInd);
 		static int compare_efort(const void *a, const void *b) ;
 		static int compare_satis(const void *a, const void *b) ;
 		static int compare_crowding(const void *a, const void *b) ;
 
-		void rank(int num_sol);
+		void rank(int num_sol, individuo *listInd);
 
 		void imprimir();
+		void imprimirP();
+
 		virtual ~calculos();
 	};
 
