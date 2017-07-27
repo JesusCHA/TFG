@@ -56,6 +56,8 @@ class calculos {
 		void generarPobl();
 		void generarRand(individuo *ind);
 
+		void writeFile(ofstream &log, individuo *ind);
+
 		void repartir();
 		void reagrupar();
 
@@ -71,7 +73,7 @@ class calculos {
 		static int compare_satis(const void *a, const void *b) ;
 		static int compare_crowding(const void *a, const void *b) ;
 
-		void rank(int num_sol, individuo *listInd);
+		void rank_crowding(int num_sol, individuo *listInd);
 
 		void imprimir();
 		void imprimirP();

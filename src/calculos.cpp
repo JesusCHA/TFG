@@ -38,7 +38,7 @@ int calculos::frog(ofstream &log){
 
 	for (int i = 0; i < evaluaciones; ++i){
 		//imprimirP();
-		rank(population, poblacion);
+		rank_crowding(population, poblacion);
 		//imprimirP();
 		repartir(); //repartir entre los charcos
 		//imprimir(); // mostrar la poblacion por charcos
@@ -50,11 +50,13 @@ int calculos::frog(ofstream &log){
 
 	}
 
-// Guardar en el fichero log todas las soluciones que hay en la población
-// satisfaccion;esfuerzo;vector X en cada línea del fichero
-
-	sol_log++;//por cada solución almacenada en el fichero
-
+	// Guardar en el fichero log todas las soluciones que hay en la población
+	// satisfaccion;esfuerzo;vector X en cada línea del fichero
+	for (int i = 0; i < population; i++){
+		writeFile(log, &poblacion[i]);
+		sol_log++;
+	}
+		
 	//volver a ordenar y listarx
 	imprimirP();
 
@@ -84,6 +86,16 @@ void calculos::generarRand(individuo *ind){
 	calcularSyE(ind);// calcular esfuerzo y satisfacción
 }
 
+
+void calculos::writeFile(ofstream &log, individuo *ind){
+	log << ind->S <<";"<< ind->E << ";" << "{";
+	for (int i = 0; i < lf.getLong(); ++i){
+		log << ind->X[i];
+	}
+	log << "}" << endl;
+	//por cada solución almacenada en el fichero
+	
+}
 
 void calculos::repartir(){
 	int j,a;
@@ -164,7 +176,7 @@ void calculos::mejorar(ofstream &log){
 				} else {
 
 					generarRand(newInd);
-					// Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
+					writeFile(log, newInd); // Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
 					sol_log++;
 					
 					charcos[j].inds[sizeCharco-1] = *newInd;
@@ -299,8 +311,7 @@ int calculos::compare_crowding(const void *a, const void *b) {
 
 
 
-void calculos::rank(int num_sol, individuo *listInd) {
-	cout << "rank";
+void calculos::rank_crowding(int num_sol, individuo *listInd) {
 	int p,q,domination,i,max_front,ini;
 	int n[num_sol];			 	//array con la cantidad de los individuos que le dominan a un individuo
 	int S_size[num_sol];	 	//conjunto de dominadas por el rank 1
