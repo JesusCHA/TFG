@@ -12,12 +12,27 @@
 
 namespace std{
 
-	class filtrado_hv{
-		int j;
+	class filtrado_hv : public calculos{
 
-	public:
+		individuo *soluciones;
+		individuo *aux;
+		individuo *solR;
+		
+		string nFich;
+		int nsol;
+		int nR_sol;
+
+		public:
 		filtrado_hv();
-		void rank(int num_sol,int sort);
+		void principal(int total_sol, int num);
+		
+		void inicializar();
+		
+		void lectura_datos();
+
+		void aum_tam();
+		void redu_sol();
+		void calculate_HV();
 		~filtrado_hv();
 	};
 
