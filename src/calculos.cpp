@@ -36,7 +36,9 @@ int calculos::frog(ofstream &log){
 	
 	generarPobl();
 
-	for (int i = 0; i < evaluaciones; ++i){
+	//imprimirP();
+
+	for (int i = 0; i < 1; ++i){
 		//imprimirP();
 		rank_crowding(population, poblacion);
 		//imprimirP();
@@ -52,13 +54,14 @@ int calculos::frog(ofstream &log){
 
 	// Guardar en el fichero log todas las soluciones que hay en la población
 	// satisfaccion;esfuerzo;vector X en cada línea del fichero
+	//log << endl;
 	for (int i = 0; i < population; i++){
-		writeFile(log, &poblacion[i]);
+		writeFile(log, poblacion[i]);
 		sol_log++;
 	}
 		
 	//volver a ordenar y listarx
-	imprimirP();
+	
 
 	return sol_log;
 }
@@ -82,15 +85,16 @@ void calculos::generarRand(individuo *ind){
 		r = rand()%2;
 		ind->X[i] = r;
 	}
+
 	lf.reparar(ind->X);
 	calcularSyE(ind);// calcular esfuerzo y satisfacción
 }
 
 
-void calculos::writeFile(ofstream &log, individuo *ind){
-	log << ind->S <<";"<< ind->E << ";" << "{";
+void calculos::writeFile(ofstream &log, individuo ind){
+	log << ind.S <<";"<< ind.E << ";" << "{";
 	for (int i = 0; i < lf.getLong(); ++i){
-		log << ind->X[i];
+		log << ind.X[i];
 	}
 	log << "}" << endl;
 	//por cada solución almacenada en el fichero
@@ -127,12 +131,15 @@ void calculos::reagrupar(){
 }
 
 void calculos::calcularSyE(individuo *ind){
+	int s = 0, e = 0;
 	for(int i = 0; i < lf.getLong(); i++){
 		if(ind->X[i] == 1){
-			ind->S += satis[i];
-			ind->E += efor[i];
+			s += satis[i];
+			e += efor[i];
 		}
 	}
+	ind->S = s;
+	ind->E = e;
 }
 
 
@@ -176,7 +183,7 @@ void calculos::mejorar(ofstream &log){
 				} else {
 
 					generarRand(newInd);
-					writeFile(log, newInd); // Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
+					writeFile(log, *newInd);// Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
 					sol_log++;
 					
 					charcos[j].inds[sizeCharco-1] = *newInd;
@@ -195,10 +202,7 @@ void calculos::mejorar(ofstream &log){
 			charcos[j].inds[pos+1] = auxInd;
 			if (domina(&auxInd,mejorG) == 1) *mejorG = auxInd;
 		}
-
-		//-------------hasta aquí ---
-
-		
+		//-------------hasta aquí ---		
 	}
 
 	free(newInd->X);
@@ -212,7 +216,7 @@ void calculos::mejorarInd(int mejor[], int peor[], individuo *newInd){
 			newInd->X[i] = peor[i];
 		}else{
 			r = rand()%100;
-			if(r < aprender) newInd->X[i] = mejor[i]; /////////////////*******
+			if(r < aprender) newInd->X[i] = mejor[i]; 
 			else newInd->X[i] = peor[i];
 		}
 	}

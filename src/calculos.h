@@ -15,38 +15,47 @@ namespace std {
 
 class calculos {
 
-	leerfich lf;			//instancia de leerficheros
-
-	int sol_log;
-	int aprender;
-
-	int population;			//cantidad de población
-	int nCharcos;			//numero de charcos
-	int sizeCharco;			//tamaño del charco
-	int evaluaciones; 		//cantidad de evaluaciones
-	int evCharco;			//evaluaciones por charco
-
-	int min_efort;			//mínimo esfuerzo que hay en la población
-	int max_efort;			//máximo esfuerzo que hay en la población
-	int min_satis;			//mínima satisfacción que hay en la población
-	int max_satis;			//máxima satisfacción que hay en la población
-
-	struct individuo {
+	protected: 
+		struct individuo {
 		int *X;				//resultado de cada individuo
 		int S; 				//satisfaccion que causa al realizarse
 		int E; 				//esfuerzo que requiere el individuo
 		int rank;			//ranking de dominancia
 		double crowding;	//distancia crowding
-	};
-	individuo *poblacion; 	//poblacion de individuos
+		};
+	
+		leerfich lf;			//instancia de leerficheros
 
-	int *satis;
-	int *efor;
+		int max_efort;			//máximo esfuerzo que hay en la población
+		int min_efort;			//mínimo esfuerzo que hay en la población
 
-	struct memeplex{ //charcos de individuos
-		individuo *inds;
-	};
-	memeplex *charcos;	//puntero a charcos
+		int max_satis;			//máxima satisfacción que hay en la población
+		int min_satis;			//mínima satisfacción que hay en la población
+
+
+	private:		
+		int sol_log;
+		int aprender;
+
+		int population;			//cantidad de población
+		int nCharcos;			//numero de charcos
+		int sizeCharco;			//tamaño del charco
+		int evaluaciones; 		//cantidad de evaluaciones
+		int evCharco;			//evaluaciones por charco
+
+
+		
+
+		individuo *poblacion; 	//poblacion de individuos
+
+		int *satis;
+		int *efor;
+
+		struct memeplex{ //charcos de individuos
+			individuo *inds;
+		};
+		memeplex *charcos;	//puntero a charcos
+
 
 	public:
 		calculos();
@@ -56,7 +65,7 @@ class calculos {
 		void generarPobl();
 		void generarRand(individuo *ind);
 
-		void writeFile(ofstream &log, individuo *ind);
+		void writeFile(ofstream &log, individuo ind);
 
 		void repartir();
 		void reagrupar();
