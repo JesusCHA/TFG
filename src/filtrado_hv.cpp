@@ -29,16 +29,16 @@ void filtrado_hv::principal(int total_sol, int num){
 
 	nsol = total_sol;
 	if(num < 10)
-		nFich = "sol0"+std::to_string(num);
+		nFich = "0"+std::to_string(num);
 	else{
-		nFich = "sol"+std::to_string(num);
+		nFich = std::to_string(num);
 	}
 
 	lectura_datos();
 
 	redu_sol();
 
-	calculate_HV();
+	//calculate_HV();
 }
 
 void filtrado_hv::inicializar(){
@@ -58,12 +58,14 @@ void filtrado_hv::lectura_datos(){  // recordar modificar más tarde para la suc
 	fstream sol_file;						//flujo lectura de fichero solXX.csv
 
 	string frase;
+	string a;
 
 	inicializar();
 
- 	sol_file.open("sol"+nFich+".csv");
+	fichero = "sol"+nFich+".csv";
+ 	sol_file.open("../log_res/"+fichero);
 	if (!sol_file.is_open()){
-		cout << "ERROR: fopen failed to open" << endl/* nombre del fichero */ <<  "for reading"<< endl;
+		cout << "ERROR: fopen failed to open "<< fichero <<  " for reading"<< endl;
 		return;
 	}
 
@@ -77,10 +79,13 @@ void filtrado_hv::lectura_datos(){  // recordar modificar más tarde para la suc
 
 		getline(sol_file, frase, '{');
 		getline(sol_file, frase, '}');
+		cout << frase << endl;
 		for (int j = 0; j < lf.getLong(); j++){
-			soluciones[i].X[j] = frase[j];
+			a = frase[j];
+			soluciones[i].X[j] = atoi(a.c_str());
 		}
 	}
+
 }
 
 void filtrado_hv::aum_tam(){
@@ -104,31 +109,32 @@ void filtrado_hv::redu_sol(){
 	int eq_ind = 0;
 	nR_sol = 0;
 
-	redu_sol_file.open("sol_r"+nFich+".csv");
+	redu_sol_file.open("../redu y hv/sol_r"+nFich+".csv");
 	if (!redu_sol_file.is_open()){
-		cout << "ERROR: fopen failed to open" << "sol_r" << nFich <<".csv" <<  "for reading"<< endl;
+		cout << "ERROR: fopen failed to open " << "sol_r" << nFich <<".csv" <<  " for writing"<< endl;
 		return;
 	}
 
-	redu_sol_file.open("HV"+nFich+".csv");
-	if (!redu_sol_file.is_open()){
-		cout << "ERROR: fopen failed to open" << "HV" << nFich << ".csv" <<  "for reading"<< endl;
+	hv_sol_file.open("../redu y hv/HV"+nFich+".csv");
+	if (!hv_sol_file.is_open()){
+		cout << "ERROR: fopen failed to open " << "HV" << nFich << ".csv" <<  " for writing"<< endl;
 		return;
 	}
 
+	cout << " ---------- " << nsol << " ---------- " << endl;
 	for (i = 0; i < nsol; i++){
 		dominated = 0;
 		for (j = 0; j < nsol; j++){
 			if(std::calculos::domina(&soluciones[i], &soluciones[j]) == -1){
 				dominated = 1;
-				return;
+				break;
 			}
 		}
 
 		if(dominated == 0) {
 			equal = 0;
 			for(j = 0; j < nR_sol; j++){
-				if(soluciones[i].S == soluciones[j].S && soluciones[i].E == soluciones[j].E){ // ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ HACER MÁS TARDE !!!!!!!!!!!!!!!!!!
+				if(soluciones[i].S == solR[j].S && soluciones[i].E == solR[j].E){ // ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ HACER MÁS TARDE !!!!!!!!!!!!!!!!!!
 
 					eq_ind=0;
 					for (k=0;k < lf.getLong();k++)
@@ -141,8 +147,8 @@ void filtrado_hv::redu_sol(){
 					}
 				}
 			}
-			if(equal == 0){
-				hv_sol_file << soluciones[i].S/(double)max_satis << " " << soluciones[i].E/(double)max_efort << endl;					//flujo escritura de fichero rSolXX.csv
+			if(equal == 0){ 
+				hv_sol_file << soluciones[i].S/(double)(max_satis - min_satis) << " " << soluciones[i].E/(double)(max_efort - min_efort) << endl;					//flujo escritura de fichero rSolXX.csv
 				std::calculos::writeFile(redu_sol_file, soluciones[i]);
 			}
 			aum_tam();
@@ -178,9 +184,9 @@ void filtrado_hv::calculate_HV(){
 	system(y);
 	
 
-	hv_value_sol_file.open("valueHV"+nFich+".txt");
+	hv_value_sol_file.open("../redu y hv/valueHV"+nFich+".txt");
 	if (!hv_value_sol_file.is_open()){
-		cout << "ERROR: fopen failed to open" << "valueHV" << nFich <<".csv" <<  "for reading"<< endl;
+		cout << "ERROR: fopen failed to open " << "valueHV" << nFich <<".csv" << " for reading"<< endl;
 		return;
 	}
 	getline(hv_value_sol_file,frase,'\n');

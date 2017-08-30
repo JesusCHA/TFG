@@ -35,16 +35,13 @@ class calculos {
 
 	private:		
 		int sol_log;
-		int aprender;
+		int aprender;			//rango de aprendizaje del individuo con respecto al mejor
 
 		int population;			//cantidad de población
 		int nCharcos;			//numero de charcos
 		int sizeCharco;			//tamaño del charco
 		int evaluaciones; 		//cantidad de evaluaciones
 		int evCharco;			//evaluaciones por charco
-
-
-		
 
 		individuo *poblacion; 	//poblacion de individuos
 

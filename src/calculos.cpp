@@ -38,7 +38,7 @@ int calculos::frog(ofstream &log){
 
 	//imprimirP();
 
-	for (int i = 0; i < 1; ++i){
+	for (int i = 0; i < 1/*evaluaciones*/; ++i){
 		//imprimirP();
 		rank_crowding(population, poblacion);
 		//imprimirP();
@@ -92,11 +92,14 @@ void calculos::generarRand(individuo *ind){
 
 
 void calculos::writeFile(ofstream &log, individuo ind){
+	cout << ind.S <<";"<< ind.E << ";" << "{";
 	log << ind.S <<";"<< ind.E << ";" << "{";
 	for (int i = 0; i < lf.getLong(); ++i){
 		log << ind.X[i];
+		cout << ind.X[i];
 	}
 	log << "}" << endl;
+	cout << "}" << endl;
 	//por cada solución almacenada en el fichero
 	
 }
@@ -181,10 +184,10 @@ void calculos::mejorar(ofstream &log){
 				if(domina(newInd, peor) == 1){
 					charcos[j].inds[sizeCharco-1] = *newInd;
 				} else {
-
+					/****************************PREGUNTAR**********************************/
 					generarRand(newInd);
 					writeFile(log, *newInd);// Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
-					sol_log++;
+					sol_log++;		
 					
 					charcos[j].inds[sizeCharco-1] = *newInd;
 				}
@@ -244,13 +247,11 @@ void calculos::imprimir(){
 			cout << "charco nº:"<< i << endl << endl;
 		for(int j = 0; j < sizeCharco; j++){
 			for(int k = 0; k < lf.getLong(); k++){
-				cout << charcos[i].inds[j].X[k] << " " ;
+				cout << charcos[i].inds[j].X[k] << " ";
 			}
 			cout << endl << "Satisfacción: "<< charcos[i].inds[j].S << endl << "Esfuerzo: " << charcos[i].inds[j].E << endl;
 			cout << "rank: " << charcos[i].inds[j].rank << endl << endl;
 		}
-		
-
 	}
 }
 

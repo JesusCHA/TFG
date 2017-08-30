@@ -18,6 +18,8 @@ namespace std{
 		individuo *aux;
 		individuo *solR;
 		
+		string fichero;
+
 		string nFich;
 		int nsol;
 		int nR_sol;
