@@ -17,17 +17,18 @@ newInd->X = (int*)malloc(lf.getLong() * sizeof(int));
 filtrado_hv::filtrado_hv(){
 	nsol = 0;
 	nFich ="";
-	solR = (individuo *) malloc (sizeof(individuo));
-	solR[0].X = (int*)malloc(lf.getLong() * sizeof(int));
-	solR[0].S=0;
-	solR[0].E=0;
-	solR[0].rank = 0;
-	solR[0].crowding = 0;
+
+	max_satis=893;
+	max_efort=85;
+
 }
 
 void filtrado_hv::principal(int total_sol, int num){
 
 	nsol = total_sol;
+
+	inicializar();
+
 	if(num < 10)
 		nFich = "0"+std::to_string(num);
 	else{
@@ -38,29 +39,37 @@ void filtrado_hv::principal(int total_sol, int num){
 
 	redu_sol();
 
-	//calculate_HV();
+	calculate_HV();
+
 }
 
 void filtrado_hv::inicializar(){
+	int i;
 	soluciones = new individuo[nsol];
-	for (int i = 0; i < nsol; i++){
+	solR = new individuo[nsol];
+	for (i = 0; i < nsol; i++){
 		soluciones[i].X = new int[lf.getLong()];//determinar el tamaño de cada individuo
 		soluciones[i].S=0;
 		soluciones[i].E=0;
 		soluciones[i].rank = 0;
 		soluciones[i].crowding = 0;
+
+		solR[i].X = new int[lf.getLong()];//determinar el tamaño de cada individuo
+		solR[i].S=0;
+		solR[i].E=0;
+		solR[i].rank = 0;
+		solR[i].crowding = 0;
 	}
 }
 
 void filtrado_hv::lectura_datos(){  // recordar modificar más tarde para la sucesión de números 
 
 
-	fstream sol_file;						//flujo lectura de fichero solXX.csv
+	ifstream sol_file;						//flujo lectura de fichero solXX.csv
 
 	string frase;
 	string a;
 
-	inicializar();
 
 	fichero = "sol"+nFich+".csv";
  	sol_file.open("../log_res/"+fichero);
@@ -79,7 +88,7 @@ void filtrado_hv::lectura_datos(){  // recordar modificar más tarde para la suc
 
 		getline(sol_file, frase, '{');
 		getline(sol_file, frase, '}');
-		cout << frase << endl;
+		//cout << frase << endl;
 		for (int j = 0; j < lf.getLong(); j++){
 			a = frase[j];
 			soluciones[i].X[j] = atoi(a.c_str());
@@ -88,14 +97,6 @@ void filtrado_hv::lectura_datos(){  // recordar modificar más tarde para la suc
 
 }
 
-void filtrado_hv::aum_tam(){
-	solR = new individuo[sizeof(solR)+1];
-	solR[sizeof(solR)].X = new int[lf.getLong()];//determinar el tamaño de cada individuo
-	solR[sizeof(solR)].S = 0;
-	solR[sizeof(solR)].E = 0;
-	solR[sizeof(solR)].rank = 0;
-	solR[sizeof(solR)].crowding = 0;
-}
 
 void filtrado_hv::redu_sol(){
 	
@@ -109,13 +110,13 @@ void filtrado_hv::redu_sol(){
 	int eq_ind = 0;
 	nR_sol = 0;
 
-	redu_sol_file.open("../redu y hv/sol_r"+nFich+".csv");
+	redu_sol_file.open("../redu_hv/sol_r"+nFich+".csv");
 	if (!redu_sol_file.is_open()){
 		cout << "ERROR: fopen failed to open " << "sol_r" << nFich <<".csv" <<  " for writing"<< endl;
 		return;
 	}
 
-	hv_sol_file.open("../redu y hv/HV"+nFich+".csv");
+	hv_sol_file.open("../redu_hv/HV"+nFich+".csv");
 	if (!hv_sol_file.is_open()){
 		cout << "ERROR: fopen failed to open " << "HV" << nFich << ".csv" <<  " for writing"<< endl;
 		return;
@@ -123,6 +124,7 @@ void filtrado_hv::redu_sol(){
 
 	cout << " ---------- " << nsol << " ---------- " << endl;
 	for (i = 0; i < nsol; i++){
+		//cout << "pasa?" << endl;
 		dominated = 0;
 		for (j = 0; j < nsol; j++){
 			if(std::calculos::domina(&soluciones[i], &soluciones[j]) == -1){
@@ -130,6 +132,7 @@ void filtrado_hv::redu_sol(){
 				break;
 			}
 		}
+		
 
 		if(dominated == 0) {
 			equal = 0;
@@ -148,14 +151,17 @@ void filtrado_hv::redu_sol(){
 				}
 			}
 			if(equal == 0){ 
-				hv_sol_file << soluciones[i].S/(double)(max_satis - min_satis) << " " << soluciones[i].E/(double)(max_efort - min_efort) << endl;					//flujo escritura de fichero rSolXX.csv
+				hv_sol_file << soluciones[i].S/(double)max_satis << " " << soluciones[i].E/(double)max_efort << endl;					//flujo escritura de fichero rSolXX.csv
 				std::calculos::writeFile(redu_sol_file, soluciones[i]);
 			}
-			aum_tam();
-			solR[sizeof(solR)] = soluciones[i];
+			//aum_tam();
+			//cout << "pasa?" << endl;
+			std::calculos::change(&solR[nR_sol],&soluciones[i]);
+			//
 			nR_sol++;
 			
 		}
+		//aum_tam();
 	}
 
 	redu_sol_file.close();					
@@ -164,11 +170,10 @@ void filtrado_hv::redu_sol(){
 	if(nR_sol > nsol)
 		cout << "ERROR:  This number is higher than the maximum allowed" << endl;
 }
-	
 
 void filtrado_hv::calculate_HV(){
 	
-	fstream hv_value_sol_file;				//flujo escritura del fichero sHVXX.csv
+	ifstream hv_value_sol_file;				//flujo lectura del fichero sHVXX.csv
 	ofstream valueHV;						//flujo escritura del fichero ALL_HV.csv
 	
 	string frase;
@@ -176,37 +181,49 @@ void filtrado_hv::calculate_HV(){
 	string hvFich, vHVFich, hv_command;
 	double hypervolume;
 
-	//FALTA ABRIR EL FICHERO QUE CALCULA EL HIPERVOLUMEN
-	hvFich = "HV"+nFich+".csv";
-	vHVFich = "valueHV"+nFich+".txt";
-	hv_command = "hyp_ind hyp_ind_param.txt" + hvFich + "reference_set" + vHVFich;
-	char *y = new char[hv_command.length() + 1];
+	hvFich = "../redu_hv/HV"+nFich+".csv";
+	vHVFich = "../redu_hv/valueHV"+nFich+".txt";
+	hv_command = "./hyp_ind hyp_ind_param.txt " + hvFich + " reference_set " + vHVFich;
+	char y[90];
+	strcpy(y,(char *)hv_command.c_str());	
+
+	cout << " >> >> "<< y << " << << " << endl;
 	system(y);
 	
 
-	hv_value_sol_file.open("../redu y hv/valueHV"+nFich+".txt");
+	hv_value_sol_file.open("../redu_hv/valueHV"+nFich+".txt");
 	if (!hv_value_sol_file.is_open()){
-		cout << "ERROR: fopen failed to open " << "valueHV" << nFich <<".csv" << " for reading"<< endl;
+		cout << "ERROR: fopen failed to open " << "valueHV" << nFich <<".txt" << " for reading"<< endl;
 		return;
 	}
 	getline(hv_value_sol_file,frase,'\n');
-	hypervolume = atof(frase.c_str()); 
+	hypervolume = atof(frase.c_str());
 	hv_value_sol_file.close();
-	/*
-	* FALTAN COSAS POR HACER
-	*/
+	//
+	// FALTAN COSAS POR HACER
+	//
 
-	valueHV.open( "All_HV.csv", ios::ate);
+	valueHV.open( "All_HV.csv", ios::out | ios::app);
 	if (!valueHV.is_open()){
 		cout << "ERROR: fopen failed to open" << "All_HV.csv" <<  "for reading"<< endl;
 		return;
 	}
+
 	valueHV << nFich << ";" << -hypervolume << ";" << nR_sol << endl;
 	valueHV.close();
 
 }
 
 filtrado_hv::~filtrado_hv(){
+	int i;
+	/*for (i = 0; i < nR_sol; i++){
+		delete []solR->X;
+	}
+	delete []solR;
+	for (i = 0; i < nR_sol; i++){
+		delete []soluciones->X;
+	}*/
+	//delete soluciones;
 
 	//hacer borrar soluciones;
 }

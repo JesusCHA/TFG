@@ -20,7 +20,6 @@ leerfich::leerfich() {
 	esfuerzo = NULL;
 	w = NULL;
 	cl = NULL;
-	X = NULL;
 	body();
 }
 
@@ -29,10 +28,6 @@ void leerfich::inicializar() {
 	cl = new int *[length];
 	for (int i = 0; i < length; i++) {
 		cl[i] = new int[clientes];
-	}
-	X = new int[length];
-	for (int i = 0; i < length; i++) {
-		X[i] = 0;
 	}
 }
 
@@ -136,14 +131,15 @@ void leerfich::leer_condiciones(fstream &data) {
 
 void leerfich::calcualrSa(int satis[]) {
 	
-	for (int i = 0; i < length; ++i) {
+	for (int i = 0; i < length; i++) {
 		int a = 0;
-		for (int j = 0; j < clientes; ++j) {
+		for (int j = 0; j < clientes; j++) {
 			a += cl[i][j] * w[j];
-			
 		}
 		satis[i] = a;
+		cout << satis[i] << " " ;
 	}
+	cout << endl;
 }
 
 void leerfich::print() {

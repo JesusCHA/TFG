@@ -7,13 +7,16 @@
 //============================================================================
 
 #include "calculos.h"
+#include "filtrado_hv.h"
 
 #define num_rep 31
 
-int main() {
+int main(void) {
 	
+
 	calculos C;
-	ofstream log;
+	filtrado_hv F;
+	ofstream log;	
 	
 	int sol_log;
 	string nFichero;
@@ -25,15 +28,16 @@ int main() {
 			nFichero = "sol"+std::to_string(rep);
 		}
 		nFichero += ".csv";
-		cout << nFichero << " ";
+		
 		log.open("../log_res/"+nFichero);
-		
-		sol_log=C.frog(log);
-		
+		sol_log = C.frog(log);
+		cout << sol_log << "sol" << endl;
 		log.close();
-		//filtrado_y_hv(rep, sol_log);
-	}
 
-	return 0;
+		cout << rep << endl;
+
+		F.principal(sol_log,rep);
+
+	}
 }
 

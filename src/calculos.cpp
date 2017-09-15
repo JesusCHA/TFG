@@ -36,25 +36,23 @@ int calculos::frog(ofstream &log){
 	
 	generarPobl();
 
-	//imprimirP();
+	sol_log = 0;
 
-	for (int i = 0; i < 1/*evaluaciones*/; ++i){
-		//imprimirP();
-		rank_crowding(population, poblacion);
-		//imprimirP();
-		repartir(); //repartir entre los charcos
-		//imprimir(); // mostrar la poblacion por charcos
-
-		mejorar(log);	//determinar el mejor y le peor de cada charco
-		//ordIntercambio();
+	for (int i = 0; i < evaluaciones; ++i){
 		
-		reagrupar();
+		rank_crowding(population, poblacion);
 
+		repartir(); //repartir entre los charcos
+		
+		mejorar(log); //determinar el mejor y le peor de cada charco
+		
+		//ordIntercambio();
+		reagrupar();
+		
 	}
 
 	// Guardar en el fichero log todas las soluciones que hay en la población
 	// satisfaccion;esfuerzo;vector X en cada línea del fichero
-	//log << endl;
 	for (int i = 0; i < population; i++){
 		writeFile(log, poblacion[i]);
 		sol_log++;
@@ -92,14 +90,11 @@ void calculos::generarRand(individuo *ind){
 
 
 void calculos::writeFile(ofstream &log, individuo ind){
-	cout << ind.S <<";"<< ind.E << ";" << "{";
 	log << ind.S <<";"<< ind.E << ";" << "{";
 	for (int i = 0; i < lf.getLong(); ++i){
 		log << ind.X[i];
-		cout << ind.X[i];
 	}
 	log << "}" << endl;
-	cout << "}" << endl;
 	//por cada solución almacenada en el fichero
 	
 }
@@ -120,42 +115,50 @@ void calculos::repartir(){
 
 
 void calculos::reagrupar(){
-	int j, a;
-	j=a=0;
-	for(int i = 0; i < population; i++){
-		poblacion[i] = charcos[j].inds[a];
-		if(j+1 == nCharcos ){
-			j=0;
+	int a;
+	a=0;
+	for(int i = 0; i < nCharcos; i ++){
+		for(int j = 0; j < sizeCharco; j++){
+			poblacion[a]= charcos[i].inds[j];
 			a++;
-		}else{ 
-			j++;
 		}
 	}
+
 }
 
 void calculos::calcularSyE(individuo *ind){
 	int s = 0, e = 0;
 	for(int i = 0; i < lf.getLong(); i++){
 		if(ind->X[i] == 1){
-			s += satis[i];
-			e += efor[i];
+			s = s + satis[i];
+			e = e + efor[i];
 		}
 	}
 	ind->S = s;
 	ind->E = e;
 }
 
+void calculos::change(individuo *a, individuo *b){
+	for(int i = 0; i < lf.getLong(); i++){
+		a->X[i] = b->X[i];
+	}
+	a->S = b->S;
+	a->E = b->E;
+}
+
 
 void calculos::mejorar(ofstream &log){
 
+
 	individuo *newInd;
-	newInd = (individuo *) malloc (sizeof(individuo));
-	newInd->X = (int*)malloc(lf.getLong() * sizeof(int));
+	newInd = new individuo();
+	newInd->X = new int[lf.getLong()];
+	newInd->S = 0;
+	newInd->E = 0;
 
 	individuo *mejorG; 
 	individuo *mejor;
 	individuo *peor;
-
 	
 	mejorG = &charcos[0].inds[0];
 
@@ -166,50 +169,62 @@ void calculos::mejorar(ofstream &log){
 		
 		//--------------bucle de mejorar va desde aquí
 		for(int k=0; k < evCharco;k++){
-
+			
 			mejorarInd(mejor->X, peor->X, newInd); //mejorar individuo con el mejor del charco 
 
 			lf.reparar(newInd->X);
 			calcularSyE(newInd); // cambiar
 			
 			if(domina(newInd, peor) == 1){
-				charcos[j].inds[sizeCharco-1] = *newInd;
+				
+				change(&charcos[j].inds[sizeCharco-1],newInd);
+				
 			}else{
 				mejorarInd(mejorG->X, peor->X, newInd); //mejorar individuo con el mejor global
-
+				
+				
 				lf.reparar(newInd->X);
 				calcularSyE(newInd); // cambiar
-				k++;
-
+				k++; //hemos evaluado la s y e una vez más
+				
 				if(domina(newInd, peor) == 1){
-					charcos[j].inds[sizeCharco-1] = *newInd;
-				} else {
-					/****************************PREGUNTAR**********************************/
-					generarRand(newInd);
-					writeFile(log, *newInd);// Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
-					sol_log++;		
 					
-					charcos[j].inds[sizeCharco-1] = *newInd;
+					change(&charcos[j].inds[sizeCharco-1],newInd);
+				} else {
+					
+					generarRand(newInd);
+					writeFile(log, charcos[j].inds[sizeCharco-1]);// Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
+					sol_log++;		
+
+					change(&charcos[j].inds[sizeCharco-1],newInd);
 				}
 			}
 
 			// Insertar la nueva solución en la posición que le corresponda (ordenación parcial)
-			individuo auxInd = charcos[j].inds[sizeCharco-1];
+			individuo auxInd;
+			auxInd.X=new int[lf.getLong()];
+			change(&auxInd,&charcos[j].inds[sizeCharco-1]);
 			int pos = sizeCharco - 2;
 			while (domina(&auxInd,&charcos[j].inds[pos]) == 1){
-				charcos[j].inds[pos+1] = charcos[j].inds[pos];
+				change(&charcos[j].inds[pos+1],&charcos[j].inds[pos]);
 				pos--;
 				if (pos < 0) break;
 			}
 
-			charcos[j].inds[pos+1] = auxInd;
-			if (domina(&auxInd,mejorG) == 1) *mejorG = auxInd;
+			change(&charcos[j].inds[pos+1],&auxInd);
+			if (domina(&auxInd,mejorG) == 1) mejorG = &auxInd;
+			delete(auxInd.X);
 		}
-		//-------------hasta aquí ---		
+		//-------------hasta aquí ---	
+
 	}
 
-	free(newInd->X);
-	free(newInd);
+	/////////////////////////////////////////////
+	delete(newInd->X);
+	delete(newInd);	
+	/////////////////////////////////////////////
+
+
 }
 
 void calculos::mejorarInd(int mejor[], int peor[], individuo *newInd){
@@ -242,31 +257,45 @@ int calculos::domina(individuo *a,individuo *b) {
 }
 
 void calculos::imprimir(){
+	ofstream all;
+	//all.open( "CHARCOS.txt", ios::ate);
 	//Mostrar poblacion de los charcos
 	for(int i = 0; i < nCharcos; i++){
 			cout << "charco nº:"<< i << endl << endl;
 		for(int j = 0; j < sizeCharco; j++){
+			cout << charcos[i].inds[j].S  << ";" << charcos[i].inds[j].E << " - ";
+
 			for(int k = 0; k < lf.getLong(); k++){
 				cout << charcos[i].inds[j].X[k] << " ";
 			}
-			cout << endl << "Satisfacción: "<< charcos[i].inds[j].S << endl << "Esfuerzo: " << charcos[i].inds[j].E << endl;
-			cout << "rank: " << charcos[i].inds[j].rank << endl << endl;
+			//all << "rank: " << charcos[i].inds[j].rank << endl << endl;
+			cout << endl;
 		}
+			
 	}
+
+	//all.close();
 }
 
 void calculos::imprimirP(){
 	//Mostrar poblacion
 	int i, j;
 	for(i = 0; i < population; i++){
+		cout << poblacion[i].E << ";" << poblacion[i].S << ";";
 		for(j = 0; j < lf.getLong(); j++){
 			cout << poblacion[i].X[j] << " ";
 		}
 		cout << endl;
-		cout << poblacion[i].E << endl;
-		cout << poblacion[i].S << endl;
-		cout << poblacion[i].rank << endl << endl;
+		//cout << poblacion[i].rank << endl << endl;
 	}
+}
+
+void calculos::imprimirI(individuo *ind){
+	cout << ind->S << ";" << ind->E << " - ";
+	for(int i = 0; i < lf.getLong(); i++){
+		cout << ind->X[i] << " ";
+	}
+	cout << endl;
 }
 
 /* Calculate lower and upper bounds for the different objective functions */
@@ -406,6 +435,7 @@ void calculos::rank_crowding(int num_sol, individuo *listInd) {
 }
 
 calculos::~calculos() {
+	delete(efor);
 	delete(satis);
 	for(int i = 0; i < nCharcos ; i++){
 		delete(charcos[i].inds);

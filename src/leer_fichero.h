@@ -34,7 +34,7 @@ private:
 	int *w;
 	int **cl;
 	int *esfuerzo;
-	int *X;
+	//int *X;
 
 public:
 

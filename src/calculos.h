@@ -26,11 +26,6 @@ class calculos {
 	
 		leerfich lf;			//instancia de leerficheros
 
-		int max_efort;			//máximo esfuerzo que hay en la población
-		int min_efort;			//mínimo esfuerzo que hay en la población
-
-		int max_satis;			//máxima satisfacción que hay en la población
-		int min_satis;			//mínima satisfacción que hay en la población
 
 
 	private:		
@@ -53,6 +48,11 @@ class calculos {
 		};
 		memeplex *charcos;	//puntero a charcos
 
+		int max_efort;			//máximo esfuerzo que hay en la población
+		int min_efort;			//mínimo esfuerzo que hay en la población
+
+		int max_satis;			//máxima satisfacción que hay en la población
+		int min_satis;			//mínima satisfacción que hay en la población
 
 	public:
 		calculos();
@@ -68,6 +68,7 @@ class calculos {
 		void reagrupar();
 
 		void calcularSyE(individuo *ind);
+		void change(individuo *a, individuo *b);
 		int  domina(individuo *a,individuo *b);
 		void ordIntercambio ();
 		void mejorar(ofstream &log);
@@ -83,6 +84,7 @@ class calculos {
 
 		void imprimir();
 		void imprimirP();
+		void imprimirI(individuo *ind);
 
 		virtual ~calculos();
 	};
