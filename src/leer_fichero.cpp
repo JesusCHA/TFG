@@ -137,9 +137,9 @@ void leerfich::calcualrSa(int satis[]) {
 			a += cl[i][j] * w[j];
 		}
 		satis[i] = a;
-		cout << satis[i] << " " ;
+
 	}
-	cout << endl;
+
 }
 
 void leerfich::print() {

@@ -21,6 +21,8 @@ int main(void) {
 	int sol_log;
 	string nFichero;
 
+	if(remove("All_HV.csv")==0) // Eliminamos el archivo
+
 	for (int rep=0; rep < num_rep; rep++){
 		if(rep < 10)
 			nFichero = "sol0"+std::to_string(rep);
@@ -31,10 +33,7 @@ int main(void) {
 		
 		log.open("../log_res/"+nFichero);
 		sol_log = C.frog(log);
-		cout << sol_log << "sol" << endl;
 		log.close();
-
-		cout << rep << endl;
 
 		F.principal(sol_log,rep);
 

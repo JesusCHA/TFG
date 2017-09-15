@@ -88,7 +88,7 @@ void filtrado_hv::lectura_datos(){  // recordar modificar más tarde para la suc
 
 		getline(sol_file, frase, '{');
 		getline(sol_file, frase, '}');
-		//cout << frase << endl;
+
 		for (int j = 0; j < lf.getLong(); j++){
 			a = frase[j];
 			soluciones[i].X[j] = atoi(a.c_str());
@@ -122,9 +122,7 @@ void filtrado_hv::redu_sol(){
 		return;
 	}
 
-	cout << " ---------- " << nsol << " ---------- " << endl;
 	for (i = 0; i < nsol; i++){
-		//cout << "pasa?" << endl;
 		dominated = 0;
 		for (j = 0; j < nsol; j++){
 			if(std::calculos::domina(&soluciones[i], &soluciones[j]) == -1){
@@ -154,10 +152,8 @@ void filtrado_hv::redu_sol(){
 				hv_sol_file << soluciones[i].S/(double)max_satis << " " << soluciones[i].E/(double)max_efort << endl;					//flujo escritura de fichero rSolXX.csv
 				std::calculos::writeFile(redu_sol_file, soluciones[i]);
 			}
-			//aum_tam();
-			//cout << "pasa?" << endl;
+
 			std::calculos::change(&solR[nR_sol],&soluciones[i]);
-			//
 			nR_sol++;
 			
 		}
@@ -166,7 +162,7 @@ void filtrado_hv::redu_sol(){
 
 	redu_sol_file.close();					
 	hv_sol_file.close();
-	cout << nsol << ". Total number of non-dominated and different solutions = " << nR_sol<<endl;
+	cout << nsol << ". Total number of non-dominated and different solutions = " << nR_sol <<endl;
 	if(nR_sol > nsol)
 		cout << "ERROR:  This number is higher than the maximum allowed" << endl;
 }
@@ -186,8 +182,6 @@ void filtrado_hv::calculate_HV(){
 	hv_command = "./hyp_ind hyp_ind_param.txt " + hvFich + " reference_set " + vHVFich;
 	char y[90];
 	strcpy(y,(char *)hv_command.c_str());	
-
-	cout << " >> >> "<< y << " << << " << endl;
 	system(y);
 	
 
@@ -200,7 +194,7 @@ void filtrado_hv::calculate_HV(){
 	hypervolume = atof(frase.c_str());
 	hv_value_sol_file.close();
 	//
-	// FALTAN COSAS POR HACER
+	//  
 	//
 
 	valueHV.open( "All_HV.csv", ios::out | ios::app);
