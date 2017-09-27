@@ -125,14 +125,19 @@ void filtrado_hv::redu_sol(){
 	for (i = 0; i < nsol; i++){
 		dominated = 0;
 		for (j = 0; j < nsol; j++){
+
 			if(std::calculos::domina(&soluciones[i], &soluciones[j]) == -1){
+				//std::calculos::imprimirI(&soluciones[i]);
+				//cout << "its dominated" << endl;
 				dominated = 1;
 				break;
 			}
 		}
 		
-
+		
 		if(dominated == 0) {
+			//cout << "non dominated --- > ";
+			//std::calculos::imprimirI(&soluciones[i]);
 			equal = 0;
 			for(j = 0; j < nR_sol; j++){
 				if(soluciones[i].S == solR[j].S && soluciones[i].E == solR[j].E){ // ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ HACER MÁS TARDE !!!!!!!!!!!!!!!!!!
@@ -151,10 +156,9 @@ void filtrado_hv::redu_sol(){
 			if(equal == 0){ 
 				hv_sol_file << soluciones[i].S/(double)max_satis << " " << soluciones[i].E/(double)max_efort << endl;					//flujo escritura de fichero rSolXX.csv
 				std::calculos::writeFile(redu_sol_file, soluciones[i]);
+				std::calculos::change(&solR[nR_sol],&soluciones[i]);
+				nR_sol++;
 			}
-
-			std::calculos::change(&solR[nR_sol],&soluciones[i]);
-			nR_sol++;
 			
 		}
 		//aum_tam();
@@ -163,8 +167,6 @@ void filtrado_hv::redu_sol(){
 	redu_sol_file.close();					
 	hv_sol_file.close();
 	cout << nsol << ". Total number of non-dominated and different solutions = " << nR_sol <<endl;
-	if(nR_sol > nsol)
-		cout << "ERROR:  This number is higher than the maximum allowed" << endl;
 }
 
 void filtrado_hv::calculate_HV(){
@@ -203,7 +205,7 @@ void filtrado_hv::calculate_HV(){
 		return;
 	}
 
-	valueHV << nFich << ";" << -hypervolume << ";" << nR_sol << endl;
+	valueHV << nFich << ";" << -hypervolume*100 << ";" << nR_sol << endl;
 	valueHV.close();
 
 }
