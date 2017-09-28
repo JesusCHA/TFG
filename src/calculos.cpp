@@ -11,18 +11,19 @@ using namespace std ;
 
 calculos::calculos() {
 	population = 40;
-	nCharcos = 4;
+	nCharcos = 8;
 	sizeCharco = population/nCharcos;
 	evCharco = 25;
 	evaluaciones = 10000 / (nCharcos * evCharco);
 
-	aprender=75;
+	aprender=75;//75
 
 	sol_log = 0;
 
 	satis= new int[lf.getLong()];
 	efor = lf.getEsfuerzo();
 	lf.calcualrSa(satis);
+
 	poblacion = new individuo[population];
 	charcos = new memeplex[nCharcos];
 	for(int i = 0; i < nCharcos; i++){
@@ -156,11 +157,14 @@ void calculos::mejorar(ofstream &log){
 	newInd->S = 0;
 	newInd->E = 0;
 
-	individuo *mejorG; 
+	individuo *mejorG[3]; 
 	individuo *mejor;
 	individuo *peor;
-	
-	mejorG = &charcos[0].inds[0];
+	int posMG;
+
+	mejorG[0] = &charcos[0].inds[0];
+	mejorG[1] = &charcos[1].inds[0];
+	mejorG[2] = &charcos[2].inds[0];
 
 	for(int j = 0; j<nCharcos; j++){
 
@@ -180,7 +184,8 @@ void calculos::mejorar(ofstream &log){
 				change(&charcos[j].inds[sizeCharco-1],newInd);
 				
 			}else{
-				mejorarInd(mejorG->X, peor->X, newInd); //mejorar individuo con el mejor global
+				posMG = rand()%3;
+				mejorarInd(mejorG[posMG]->X, peor->X, newInd); //mejorar individuo con el mejor global
 				
 				
 				lf.reparar(newInd->X);
@@ -212,7 +217,12 @@ void calculos::mejorar(ofstream &log){
 			}
 
 			change(&charcos[j].inds[pos+1],&auxInd);
-			if (domina(&auxInd,mejorG) == 1) mejorG = &auxInd;
+			for (int g = 2; g >= 0; g--){
+				if (domina(&auxInd,mejorG[g]) == 1){
+					 mejorG[g] = &auxInd;
+					 break;
+				}
+			}
 			delete(auxInd.X);
 		}
 		//-------------hasta aquí ---	
@@ -224,11 +234,12 @@ void calculos::mejorar(ofstream &log){
 	delete(newInd);	
 	/////////////////////////////////////////////
 
-
 }
 
 void calculos::mejorarInd(int mejor[], int peor[], individuo *newInd){
 	int r = 0;
+	int maxS, minS, sm, sM;
+	int maxE, minE, em, eM;
 	for (int i = 0; i < lf.getLong(); i++){
 		if(peor[i] == mejor[i]){
 			newInd->X[i] = peor[i];
@@ -238,6 +249,49 @@ void calculos::mejorarInd(int mejor[], int peor[], individuo *newInd){
 			else newInd->X[i] = peor[i];
 		}
 	}
+	r = rand()%2;
+	maxS = maxE = 0;
+	minS = minE = INT_MAX;
+	sm = sM = em = eM = 0;
+	if(r==0){//mejorar satisfacción
+		for (int j = 0; j < lf.getLong(); j++){//comprobar si su satisfacción es la máxima de todos los requisitos que estan a 0
+			if(newInd->X[j]==0)
+				if(satis[j] > maxS){
+					maxS = satis[j];
+					sM = j;
+				}
+		}
+		for (int j = 0; j < lf.getLong(); j++){//comprobar si su satisfacción es la mínima de todos los requisitos que estan a 1
+			if(newInd->X[j]==1)
+				if(satis[j] < minS){
+					minS = satis[j];
+					sm = j;			
+				}
+			}
+		newInd->X[sM]=1;
+		newInd->X[sm]=0;
+
+	}else{//mejorar esfuerzo
+		for (int j = 0; j < lf.getLong(); j++){//comprobar si su esfuerzo es la mínimo de todos los requisitos que estan a 0
+			if(newInd->X[j]==0){
+				if(efor[j] > minE){
+					minE = efor[j];
+					em = j;
+				}
+			}
+		}
+		for (int j = 0; j < lf.getLong(); j++){//comprobar si su esfuerzi es la máximo de todos los requisitos que estan a 1
+			if(newInd->X[j]==1){
+				if(efor[j] > maxE){
+				maxE = efor[j];
+				eM = j;
+				}
+			}
+		}
+		newInd->X[em]=1;
+		newInd->X[eM]=0;
+	}	
+
 }
 
 int calculos::domina(individuo *a,individuo *b) {
@@ -245,11 +299,10 @@ int calculos::domina(individuo *a,individuo *b) {
         flag1=flag2=0;
 
         if (a->E < b->E) flag1=1;
-        else
-                if (a->E > b->E) flag2=1;
+        else if (a->E > b->E) flag2=1;
+
         if (a->S > b->S) flag1=1;
-        else
-                if (a->S < b->S) flag2=1;
+        else if (a->S < b->S) flag2=1;
 
     if (flag1 == 1 && flag2 == 0) return 1;
     if (flag1 == 0 && flag2 == 1) return -1;
