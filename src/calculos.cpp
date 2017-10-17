@@ -11,7 +11,7 @@ using namespace std ;
 
 calculos::calculos() {
 	population = 40;
-	nCharcos = 8;
+	nCharcos = 4;
 	sizeCharco = population/nCharcos;
 	evCharco = 25;
 	evaluaciones = 10000 / (nCharcos * evCharco);
@@ -19,6 +19,7 @@ calculos::calculos() {
 	aprender=75;//75
 
 	sol_log = 0;
+	prob_mut = 20;
 
 	satis= new int[lf.getLong()];
 	efor = lf.getEsfuerzo();
@@ -29,7 +30,6 @@ calculos::calculos() {
 	for(int i = 0; i < nCharcos; i++){
 		charcos[i].inds = new individuo[sizeCharco];
 	}
-
 }
 
 
@@ -47,7 +47,6 @@ int calculos::frog(ofstream &log){
 		
 		mejorar(log); //determinar el mejor y le peor de cada charco
 		
-		//ordIntercambio();
 		reagrupar();
 		
 	}
@@ -61,7 +60,6 @@ int calculos::frog(ofstream &log){
 		
 	//volver a ordenar y listarx
 	
-
 	return sol_log;
 }
 
@@ -237,62 +235,129 @@ void calculos::mejorar(ofstream &log){
 }
 
 void calculos::mejorarInd(int mejor[], int peor[], individuo *newInd){
-	int r = 0;
-	int maxS, minS, sm, sM;
-	int maxE, minE, em, eM;
-	for (int i = 0; i < lf.getLong(); i++){
-		if(peor[i] == mejor[i]){
+	int i, r;
+
+	for (i = 0; i < lf.getLong(); i++){
+		if (peor[i] == mejor[i]){
 			newInd->X[i] = peor[i];
 		}else{
 			r = rand()%100;
-			if(r < aprender) newInd->X[i] = mejor[i]; 
+			if (r < aprender) newInd->X[i] = mejor[i]; 
 			else newInd->X[i] = peor[i];
 		}
 	}
+	
 	r = rand()%2;
-	maxS = maxE = 0;
-	minS = minE = INT_MAX;
-	sm = sM = em = eM = 0;
-	if(r==0){//mejorar satisfacción
-		for (int j = 0; j < lf.getLong(); j++){//comprobar si su satisfacción es la máxima de todos los requisitos que estan a 0
-			if(newInd->X[j]==0)
-				if(satis[j] > maxS){
-					maxS = satis[j];
-					sM = j;
-				}
+	if (r == 0){ //Mutación aleatoria (al azar)
+		for (i = 0; i < lf.getLong(); i++){
+			r = rand()%100;
+			if (r < prob_mut) //Invertir el valor de esa posición
+				if (newInd->X[i] == 1) newInd->X[i] = 0;
+				else newInd->X[i] = 1;
 		}
-		for (int j = 0; j < lf.getLong(); j++){//comprobar si su satisfacción es la mínima de todos los requisitos que estan a 1
-			if(newInd->X[j]==1)
-				if(satis[j] < minS){
-					minS = satis[j];
-					sm = j;			
-				}
-			}
-		newInd->X[sM]=1;
-		newInd->X[sm]=0;
-
-	}else{//mejorar esfuerzo
-		for (int j = 0; j < lf.getLong(); j++){//comprobar si su esfuerzo es la mínimo de todos los requisitos que estan a 0
-			if(newInd->X[j]==0){
-				if(efor[j] > minE){
-					minE = efor[j];
-					em = j;
-				}
-			}
-		}
-		for (int j = 0; j < lf.getLong(); j++){//comprobar si su esfuerzi es la máximo de todos los requisitos que estan a 1
-			if(newInd->X[j]==1){
-				if(efor[j] > maxE){
-				maxE = efor[j];
-				eM = j;
-				}
-			}
-		}
-		newInd->X[em]=1;
-		newInd->X[eM]=0;
-	}	
-
+	}
+	else{ //Mutación avariciosa (buscando mejorar el individuo)
+		r = rand()%2;
+		switch (r){
+			case 0:
+				//Intentamos mejorar la satisfacción, pero si no lo conseguimos intentamos mejorar el esfuerzo
+				if (mejorarIndSatis(newInd) == -1) mejorarIndEfor(newInd);
+			break;   
+			case 1:
+				//Intentamos mejorar el esfuerzo, pero si no lo conseguimos intentamos mejorar la satisfacción
+				if (mejorarIndEfor(newInd) == -1) mejorarIndSatis(newInd);
+			break;
+		}			
+	}
 }
+
+int calculos::mejorarIndSatis(individuo *newInd){
+	int j;
+	int minS, pmS, pMS; 
+
+	do{
+		minS = INT_MAX;
+		pmS = pMS = -1; //Inicialmente desconocemos sus posiciones
+		for (j = 0; j < lf.getLong(); j++){ //Busca el requisito usado con la mínima satisfacción
+			if (newInd->X[j] == 1){
+				if (satis[j] < minS){
+					minS = satis[j];
+					pmS = j;
+				}		
+			}
+		}
+		if (pmS != -1){ //Si pmS == -1 -> La solución no se puede mejorar respecto a satisfacción
+			for (j = 0; j < lf.getLong(); j++){ //Busca el requisito no usado con la máxima satisfacción sin empeorar el esfuerzo
+				if (newInd->X[j] == 0){
+					if (satis[j] > satis[pmS] && efor[j] <= efor[pmS]){
+						if (pMS != -1){
+							if (satis[j] > satis[pMS]) pMS = j;
+						}
+						else pMS = j;
+					}
+				}
+			}
+			if (pMS == -1) //Este requisito no es mejorable, lo intentamos con el siguiente con menor satisfacción
+				newInd->X[pmS] = -1; //Desactivamos temporalmente este requisito para que no influya en la búsqueda de otros requisitos
+			else{ //Mejoramos la solución
+				newInd->X[pMS] = 1;
+				newInd->X[pmS] = 0;
+				pmS = -1; //Para salir del bucle
+			}
+		}
+	}
+	while (pmS != -1);
+	//Restablecemos (ponemos otra vez a "1" todas las posiciones que hemos puesto a "-1" de) la solución antes de terminar
+	for (j = 0; j < lf.getLong(); j++)
+		if (newInd->X[j] == -1) newInd->X[j] = 1;
+
+	return pMS; //Valdrá -1 sólo si la solución no se puede mejorar respecto a satisfacción
+}
+
+int calculos::mejorarIndEfor(individuo *newInd){
+	int j;
+	int maxE, pME, pmE;
+
+	do{
+		maxE = 0;
+		pME = pmE = -1; //Inicialmente desconocemos sus posiciones
+		for (j = 0; j < lf.getLong(); j++){ //Busca el requisito usado con el máximo esfuerzo
+			if (newInd->X[j] == 1){
+				if (efor[j] > maxE){
+					maxE = efor[j];
+					pME = j;
+				}		
+			}
+		}
+		if (pME != -1){ //Si pME == -1 -> La solución no se puede mejorar respecto al esfuerzo
+			for (j = 0; j < lf.getLong(); j++){ //Busca el requisito no usado con el mínimo esfuerzo sin empeorar la satisfacción
+				if (newInd->X[j] == 0){
+					if (efor[j] < efor[pME] && satis[j] >= satis[pME]){
+						if (pmE != -1){
+							if (efor[j] < efor[pmE]) pmE = j;
+						}
+						else pmE = j;
+					}
+				}
+			}
+			if (pmE == -1) //Este requisito no es mejorable, lo intentamos con el siguiente con mayor esfuerzo
+				newInd->X[pME] = -1; //Desactivamos temporalmente este requisito para que no influya en la búsqueda de otros requisitos
+			else{ //Mejoramos la solución
+				newInd->X[pmE] = 1;
+				newInd->X[pME] = 0;
+				pME = -1; //Para salir del bucle
+			}
+		}
+	}
+	while (pME != -1);
+	//Restablecemos (ponemos otra vez a "1" todas las posiciones que hemos puesto a "-1" de) la solución antes de terminar
+	for (j = 0; j < lf.getLong(); j++)
+		if (newInd->X[j] == -1) newInd->X[j] = 1;
+
+	return pmE; //Valdrá -1 sólo si la solución no se puede mejorar respecto al esfuerzo
+}
+
+
 
 int calculos::domina(individuo *a,individuo *b) {
         int flag1,flag2;
@@ -497,5 +562,3 @@ calculos::~calculos() {
 	delete(poblacion);
 }
  /* namespace std */
-
-

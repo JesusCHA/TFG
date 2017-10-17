@@ -126,10 +126,12 @@ void leerfich::leer_condiciones(fstream &data) {
 			y.clear();
 
 			cond[i].signo = frase[2];
+			//cout << cond[i].primero <<" "<<cond[i].signo<< " "<< cond[i].segundo<<endl;
 	}
 }
 
 void leerfich::calcualrSa(int satis[]) {
+	
 	
 	for (int i = 0; i < length; i++) {
 		int a = 0;
@@ -155,19 +157,23 @@ void leerfich::print() {
 	}
 }
 
+//va leyendo un array de condiciones y hacen que se cumplan
 void leerfich::reparar(int individuo[]){
 	for (int i = 0; i < condicones; i++) {
 		calcularS(cond[i].signo, cond[i].primero-1, cond[i].segundo-1, individuo);
 	}
 }
 
-void leerfich::calcularS(string signo, int a, int b, int individuo[]) {
+//desglosa el array para poder aplicar las condiciones
+void leerfich::calcularS(string signo, int a, int b, int individuo[]) {  
 	switch (signo[0]) {
 	case '>':
-		if (individuo[a] == 1) {
-			individuo[b] = 1;
-		}
+		/////	MODIFICACIÓN //////
+		if (individuo[b] == 1) {
+			individuo[a] = 1;
+		} else individuo[b] = 0;
 		break;
+		///////////////////////////
 	case '+':
 		if (individuo[a] == 1) {
 			individuo[b] = 1;
@@ -186,7 +192,6 @@ void leerfich::calcularS(string signo, int a, int b, int individuo[]) {
 		break;
 	}
 }
-
 
 int leerfich::getLong(){
 	return length;

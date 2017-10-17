@@ -10,6 +10,7 @@
 
 #include "leer_fichero.h"
 #include <float.h>
+#include <climits>
 
 namespace std {
 
@@ -54,6 +55,8 @@ class calculos {
 		int max_satis;			//máxima satisfacción que hay en la población
 		int min_satis;			//mínima satisfacción que hay en la población
 
+		int prob_mut;
+
 	public:
 		calculos();
 
@@ -72,8 +75,12 @@ class calculos {
 		int  domina(individuo *a,individuo *b);
 		void ordIntercambio ();
 		void mejorar(ofstream &log);
+
 		void mejorarInd(int mejor[], int peor[], individuo *newInd);
-		
+		int mejorarIndSatis(individuo *newInd);
+		int mejorarIndEfor(individuo *newInd);
+
+
 
 		void calculate_bounds(int num_sol,  individuo *listInd);
 		static int compare_efort(const void *a, const void *b) ;
