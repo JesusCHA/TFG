@@ -211,16 +211,12 @@ void filtrado_hv::calculate_HV(){
 }
 
 filtrado_hv::~filtrado_hv(){
-	int i;
-	/*for (i = 0; i < nR_sol; i++){
-		delete []solR->X;
+	for (int i = 0; i < nsol; i++){
+		delete(soluciones[i].X);
+		delete(solR[i].X);
 	}
-	delete []solR;
-	for (i = 0; i < nR_sol; i++){
-		delete []soluciones->X;
-	}*/
-	//delete soluciones;
-
-	//hacer borrar soluciones;
+	
+	delete(soluciones);
+	delete(solR);	
 }
 

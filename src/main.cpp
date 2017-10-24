@@ -22,7 +22,11 @@ int main(void) {
 	int sol_log;
 	string nFichero;
 
-	if(remove("All_HV.csv")==0) // Eliminamos el archivo
+	log.open("All_HV.csv");
+	if(log){ // Eliminamos el archivo
+		log.close();
+		remove("All_HV.csv");// Eliminamos el archivo
+	}
 
 	for (int rep=0; rep < num_rep; rep++){
 			

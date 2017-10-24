@@ -206,8 +206,13 @@ int* leerfich::getEsfuerzo(){
 }	
 
 leerfich::~leerfich() {
+	
 	delete (esfuerzo);
+	for (int i = 0; i < length; i++) delete(cl[i]);
+	delete(cl);
 	delete (w);
-	delete (cl);
+	cond = NULL;
+	delete cond; //SI LO DESCOMENTO ME SALTA ERROR DE -->Abortado (`core' generado)<-- NO SÉ CÓMO DESTRUIRLO 
+
 }
 

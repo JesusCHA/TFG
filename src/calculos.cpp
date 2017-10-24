@@ -15,20 +15,20 @@ calculos::calculos() {
 	sizeCharco = population/nCharcos;
 	evCharco = 25;
 	evaluaciones = 10000 / (nCharcos * evCharco);
-
-	aprender=75;//75
-
-	sol_log = 0;
+	aprender = 75;
 	prob_mut = 20;
 
+	sol_log = 0;
+
 	satis= new int[lf.getLong()];
-	efor = lf.getEsfuerzo();
 	lf.calcualrSa(satis);
+	efor = lf.getEsfuerzo();
 
 	poblacion = new individuo[population];
 	charcos = new memeplex[nCharcos];
 	for(int i = 0; i < nCharcos; i++){
 		charcos[i].inds = new individuo[sizeCharco];
+		for (int j = 0; j < sizeCharco; j++) charcos[i].inds[j].X = new int[lf.getLong()];
 	}
 }
 
@@ -102,7 +102,7 @@ void calculos::repartir(){
 	int j,a;
 	j=a=0;
 	for(int i = 0; i < population; i++){
-		charcos[j].inds[a] = poblacion[i];
+		change(&charcos[j].inds[a],&poblacion[i]);
 		if(j+1 == nCharcos ){
 			j=0;
 			a++;
@@ -118,11 +118,10 @@ void calculos::reagrupar(){
 	a=0;
 	for(int i = 0; i < nCharcos; i ++){
 		for(int j = 0; j < sizeCharco; j++){
-			poblacion[a]= charcos[i].inds[j];
+			change(&poblacion[a],&charcos[i].inds[j]);
 			a++;
 		}
 	}
-
 }
 
 void calculos::calcularSyE(individuo *ind){
@@ -453,14 +452,13 @@ int calculos::compare_satis(const void *a, const void *b) {
 }
 
 /* Comparison for sorting in descending order of magnitude by the crowding distance */
-int calculos::compare_crowding(const void *a, const void *b) {
-	individuo *orderA = (individuo *)a;
-	individuo *orderB = (individuo *)b;
-	if (orderA->crowding > orderB->crowding) return 1;
-	if (orderA->crowding < orderB->crowding) return -1;
+int calculos::compare_crowding(const void *a, const void *b) {	
+	individuo *orderA = (individuo *)a;	
+	individuo *orderB = (individuo *)b;	
+	if (orderA->crowding > orderB->crowding) return -1;	
+	if (orderA->crowding < orderB->crowding) return 1;	
 	return 0;
 }
-
 
 
 void calculos::rank_crowding(int num_sol, individuo *listInd) {
@@ -553,12 +551,27 @@ void calculos::rank_crowding(int num_sol, individuo *listInd) {
 }
 
 calculos::~calculos() {
-	delete(efor);
+	/*delete(efor);
 	delete(satis);
 	for(int i = 0; i < nCharcos ; i++){
 		delete(charcos[i].inds);
 	}
 	delete(charcos);
-	delete(poblacion);
+	delete(poblacion);*/
+	int i;
+
+	for(i = 0; i < nCharcos; i++){
+		for (int j = 0; j < sizeCharco; j++) delete(charcos[i].inds[j].X);
+		delete(charcos[i].inds);
+	}
+	delete(charcos);
+
+	for(i = 0; i < population; i++){ 
+		poblacion[i].X = NULL;	
+		delete(poblacion[i].X);
+	}delete(poblacion);
+
+	delete(efor);
+	delete(satis);
 }
  /* namespace std */
