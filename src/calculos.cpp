@@ -10,6 +10,7 @@
 using namespace std ;
 
 calculos::calculos() {
+
 	population = 40;
 	nCharcos = 4;
 	sizeCharco = population/nCharcos;
@@ -220,14 +221,14 @@ void calculos::mejorar(ofstream &log){
 					 break;
 				}
 			}
-			delete(auxInd.X);
+			delete[] auxInd.X;
 		}
 		//-------------hasta aquí ---	
 
 	}
 
 	/////////////////////////////////////////////
-	delete(newInd->X);
+	delete[] newInd->X;
 	delete(newInd);	
 	/////////////////////////////////////////////
 
@@ -551,27 +552,21 @@ void calculos::rank_crowding(int num_sol, individuo *listInd) {
 }
 
 calculos::~calculos() {
-	/*delete(efor);
-	delete(satis);
-	for(int i = 0; i < nCharcos ; i++){
-		delete(charcos[i].inds);
-	}
-	delete(charcos);
-	delete(poblacion);*/
 	int i;
 
 	for(i = 0; i < nCharcos; i++){
-		for (int j = 0; j < sizeCharco; j++) delete(charcos[i].inds[j].X);
-		delete(charcos[i].inds);
+		for (int j = 0; j < sizeCharco; j++) delete[] charcos[i].inds[j].X;
+		delete[] charcos[i].inds;
 	}
-	delete(charcos);
+	delete[] charcos;
 
 	for(i = 0; i < population; i++){ 
-		poblacion[i].X = NULL;	
-		delete(poblacion[i].X);
-	}delete(poblacion);
+		
+		delete [] poblacion[i].X;
+		
+	}
+	delete[] poblacion;
 
-	delete(efor);
-	delete(satis);
+	delete[] satis;
 }
  /* namespace std */

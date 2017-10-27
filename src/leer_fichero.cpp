@@ -12,8 +12,6 @@ using namespace std;
 
 leerfich::leerfich() {
 	length = 0;
-	a = 0;
-	length = 0;
 	clientes = 0;
 	condicones = 0;
 	cond = NULL;
@@ -106,7 +104,15 @@ void leerfich::leer_condiciones(fstream &data) {
 	char val1, val2;
 	getline(data, frase, '\n');
 	condicones = atoi(frase.c_str());
+	
 	cond = new conditions[condicones];
+	for ( int i = 0; i< condicones ; i++){
+		cond[i].primero = 0;
+		cond[i].segundo = 0;
+		cond[i].signo = "";
+	}
+
+
 	int a, b;
 	string x, y;
 	for (int i = 0; i < condicones; i++) {
@@ -126,7 +132,6 @@ void leerfich::leer_condiciones(fstream &data) {
 			y.clear();
 
 			cond[i].signo = frase[2];
-			//cout << cond[i].primero <<" "<<cond[i].signo<< " "<< cond[i].segundo<<endl;
 	}
 }
 
@@ -139,9 +144,7 @@ void leerfich::calcualrSa(int satis[]) {
 			a += cl[i][j] * w[j];
 		}
 		satis[i] = a;
-
 	}
-
 }
 
 void leerfich::print() {
@@ -168,12 +171,10 @@ void leerfich::reparar(int individuo[]){
 void leerfich::calcularS(string signo, int a, int b, int individuo[]) {  
 	switch (signo[0]) {
 	case '>':
-		/////	MODIFICACIÓN //////
-		if (individuo[b] == 1) {
-			individuo[a] = 1;
-		} else individuo[b] = 0;
+		if (individuo[a] == 1) {
+			individuo[b] = 1;
+		 }
 		break;
-		///////////////////////////
 	case '+':
 		if (individuo[a] == 1) {
 			individuo[b] = 1;
@@ -206,13 +207,10 @@ int* leerfich::getEsfuerzo(){
 }	
 
 leerfich::~leerfich() {
-	
-	delete (esfuerzo);
-	for (int i = 0; i < length; i++) delete(cl[i]);
-	delete(cl);
-	delete (w);
-	cond = NULL;
-	delete cond; //SI LO DESCOMENTO ME SALTA ERROR DE -->Abortado (`core' generado)<-- NO SÉ CÓMO DESTRUIRLO 
+	delete[] esfuerzo;
+	for (int i = 0; i < length; i++) delete[] cl[i];
+	delete[] cl;
+	delete[] w;
+	delete[] cond;
 
 }
-

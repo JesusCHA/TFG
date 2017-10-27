@@ -15,7 +15,7 @@
 int main(void) {
 	
 
-	calculos C;
+	//calculos C;
 	filtrado_hv F;
 	ofstream log;	
 	
@@ -40,7 +40,7 @@ int main(void) {
 		nFichero += ".csv";
 		
 		log.open("../log_res/"+nFichero);
-		sol_log = C.frog(log);
+		sol_log = F.std::calculos::frog(log);
 		log.close();
 
 		F.principal(sol_log,rep);

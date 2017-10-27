@@ -73,7 +73,6 @@ class calculos {
 		void calcularSyE(individuo *ind);
 		void change(individuo *a, individuo *b);
 		int  domina(individuo *a,individuo *b);
-		void ordIntercambio ();
 		void mejorar(ofstream &log);
 
 		void mejorarInd(int mejor[], int peor[], individuo *newInd);

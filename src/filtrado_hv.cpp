@@ -94,6 +94,7 @@ void filtrado_hv::lectura_datos(){  // recordar modificar más tarde para la suc
 			soluciones[i].X[j] = atoi(a.c_str());
 		}
 	}
+	sol_file.close();
 
 }
 
@@ -212,11 +213,11 @@ void filtrado_hv::calculate_HV(){
 
 filtrado_hv::~filtrado_hv(){
 	for (int i = 0; i < nsol; i++){
-		delete(soluciones[i].X);
-		delete(solR[i].X);
+		delete[] soluciones[i].X;
+		delete[] solR[i].X;
 	}
 	
-	delete(soluciones);
-	delete(solR);	
+	delete[] soluciones;
+	delete[] solR;	
 }
 

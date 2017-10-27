@@ -19,7 +19,6 @@ using namespace std;
 class leerfich {
 
 private:
-	int a;
 	int length;
 	int clientes;
 	int condicones;
@@ -34,7 +33,6 @@ private:
 	int *w;
 	int **cl;
 	int *esfuerzo;
-	//int *X;
 
 public:
 
