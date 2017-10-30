@@ -46,8 +46,10 @@ public:
 	void leer_recursos(fstream &data);
 	void leer_condiciones(fstream &data);
 	void solucion();//-------------------------------------------------------------
+    
     void reparar(int individuo[]);
 	void calcularS(string signo, int a, int b, int individuo[]);
+	int chequear(int individuo[]);
 
 	int getLong();
 	int getNClientes();

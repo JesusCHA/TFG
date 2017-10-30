@@ -53,12 +53,14 @@ void filtrado_hv::inicializar(){
 		soluciones[i].E=0;
 		soluciones[i].rank = 0;
 		soluciones[i].crowding = 0;
+		soluciones[i].violations = 0;
 
 		solR[i].X = new int[lf.getLong()];//determinar el tamaño de cada individuo
 		solR[i].S=0;
 		solR[i].E=0;
 		solR[i].rank = 0;
 		solR[i].crowding = 0;
+		solR[i].violations = 0;
 	}
 }
 

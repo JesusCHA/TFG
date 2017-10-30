@@ -23,6 +23,7 @@ class calculos {
 		int E; 				//esfuerzo que requiere el individuo
 		int rank;			//ranking de dominancia
 		double crowding;	//distancia crowding
+		int violations;		//numero de restricciones violadas (no cumplidas)
 		};
 	
 		leerfich lf;			//instancia de leerficheros

@@ -73,6 +73,7 @@ void calculos::generarPobl(){
 		ind->E=0;
 		ind->rank = 0;
 		ind->crowding = 0;
+		ind->violations = 0;
 		generarRand(ind);
 	}
 }
@@ -84,20 +85,28 @@ void calculos::generarRand(individuo *ind){
 		ind->X[i] = r;
 	}
 
-	lf.reparar(ind->X);
+	ind->violations = lf.chequear(ind->X);
 	calcularSyE(ind);// calcular esfuerzo y satisfacción
 }
 
 
 void calculos::writeFile(ofstream &log, individuo ind){
+	
+	if (ind.violations != 0){
+		lf.reparar(ind.X);
+		calcularSyE(&ind);// calcular esfuerzo y satisfacción	
+	}
+	
 	log << ind.S <<";"<< ind.E << ";" << "{";
 	for (int i = 0; i < lf.getLong(); ++i){
 		log << ind.X[i];
 	}
 	log << "}" << endl;
 	//por cada solución almacenada en el fichero
-	
 }
+
+
+
 
 void calculos::repartir(){
 	int j,a;
@@ -143,17 +152,17 @@ void calculos::change(individuo *a, individuo *b){
 	}
 	a->S = b->S;
 	a->E = b->E;
+	a->violations = b->violations;
 }
 
-
 void calculos::mejorar(ofstream &log){
-
 
 	individuo *newInd;
 	newInd = new individuo();
 	newInd->X = new int[lf.getLong()];
 	newInd->S = 0;
 	newInd->E = 0;
+	newInd->violations = 0;
 
 	individuo *mejorG[3]; 
 	individuo *mejor;
@@ -174,7 +183,7 @@ void calculos::mejorar(ofstream &log){
 			
 			mejorarInd(mejor->X, peor->X, newInd); //mejorar individuo con el mejor del charco 
 
-			lf.reparar(newInd->X);
+			newInd->violations = lf.chequear(newInd->X);
 			calcularSyE(newInd); // cambiar
 			
 			if(domina(newInd, peor) == 1){
@@ -186,7 +195,7 @@ void calculos::mejorar(ofstream &log){
 				mejorarInd(mejorG[posMG]->X, peor->X, newInd); //mejorar individuo con el mejor global
 				
 				
-				lf.reparar(newInd->X);
+				newInd->violations = lf.chequear(newInd->X);
 				calcularSyE(newInd); // cambiar
 				k++; //hemos evaluado la s y e una vez más
 				
@@ -231,7 +240,6 @@ void calculos::mejorar(ofstream &log){
 	delete[] newInd->X;
 	delete(newInd);	
 	/////////////////////////////////////////////
-
 }
 
 void calculos::mejorarInd(int mejor[], int peor[], individuo *newInd){
@@ -455,11 +463,16 @@ int calculos::compare_satis(const void *a, const void *b) {
 /* Comparison for sorting in descending order of magnitude by the crowding distance */
 int calculos::compare_crowding(const void *a, const void *b) {	
 	individuo *orderA = (individuo *)a;	
-	individuo *orderB = (individuo *)b;	
+	individuo *orderB = (individuo *)b;
+
+	if (orderA->violations < orderB->violations) return -1;
+	if (orderA->violations > orderB->violations) return 1;
+	
 	if (orderA->crowding > orderB->crowding) return -1;	
 	if (orderA->crowding < orderB->crowding) return 1;	
 	return 0;
 }
+
 
 
 void calculos::rank_crowding(int num_sol, individuo *listInd) {
