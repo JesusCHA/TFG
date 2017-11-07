@@ -92,6 +92,11 @@ void calculos::generarRand(individuo *ind){
 
 void calculos::writeFile(ofstream &log, individuo ind){
 	
+	/*if (ind.violations != 0){
+		ind.violations = lf.chequear(ind.X);
+		calcularSyE(&ind);// calcular esfuerzo y satisfacción	
+	}*/
+
 	if (ind.violations != 0){
 		lf.reparar(ind.X);
 		calcularSyE(&ind);// calcular esfuerzo y satisfacción	
@@ -106,18 +111,25 @@ void calculos::writeFile(ofstream &log, individuo ind){
 }
 
 
+void calculos::repartir() {
+	int j, a, inc_dec;
 
-
-void calculos::repartir(){
-	int j,a;
-	j=a=0;
-	for(int i = 0; i < population; i++){
+	j = a = 0;
+	inc_dec = +1;
+	for (int i = 0; i < population; i++) {
 		change(&charcos[j].inds[a],&poblacion[i]);
-		if(j+1 == nCharcos ){
-			j=0;
+		if ((j+inc_dec) == nCharcos) {
+			inc_dec = -1;
 			a++;
-		}else{
-			j++;
+		}
+		else {
+			if ((j+inc_dec) == -1) {
+				inc_dec = +1;
+				a++;
+			}
+			else {
+				j += inc_dec;	
+			}
 		}
 	}
 }
@@ -368,14 +380,18 @@ int calculos::mejorarIndEfor(individuo *newInd){
 
 
 int calculos::domina(individuo *a,individuo *b) {
-        int flag1,flag2;
-        flag1=flag2=0;
+    int flag1,flag2;
+    flag1=flag2=0;
 
-        if (a->E < b->E) flag1=1;
-        else if (a->E > b->E) flag2=1;
+	if (a->violations < b->violations) return 1;
+	if (a->violations > b->violations) return -1;
+	if (a->violations != 0) return 0;
+		
+    if (a->E < b->E) flag1=1;
+    else if (a->E > b->E) flag2=1;
 
-        if (a->S > b->S) flag1=1;
-        else if (a->S < b->S) flag2=1;
+    if (a->S > b->S) flag1=1;
+    else if (a->S < b->S) flag2=1;
 
     if (flag1 == 1 && flag2 == 0) return 1;
     if (flag1 == 0 && flag2 == 1) return -1;
@@ -463,11 +479,7 @@ int calculos::compare_satis(const void *a, const void *b) {
 /* Comparison for sorting in descending order of magnitude by the crowding distance */
 int calculos::compare_crowding(const void *a, const void *b) {	
 	individuo *orderA = (individuo *)a;	
-	individuo *orderB = (individuo *)b;
-
-	if (orderA->violations < orderB->violations) return -1;
-	if (orderA->violations > orderB->violations) return 1;
-	
+	individuo *orderB = (individuo *)b;	
 	if (orderA->crowding > orderB->crowding) return -1;	
 	if (orderA->crowding < orderB->crowding) return 1;	
 	return 0;
