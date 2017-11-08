@@ -31,12 +31,13 @@ calculos::calculos() {
 		charcos[i].inds = new individuo[sizeCharco];
 		for (int j = 0; j < sizeCharco; j++) charcos[i].inds[j].X = new int[lf.getLong()];
 	}
+	
 }
 
 
 int calculos::frog(ofstream &log){
 	
-	generarPobl();
+	generarPobl();	
 
 	sol_log = 0;
 
@@ -48,8 +49,7 @@ int calculos::frog(ofstream &log){
 		
 		mejorar(log); //determinar el mejor y le peor de cada charco
 		
-		reagrupar();
-		
+		reagrupar();	
 	}
 
 	// Guardar en el fichero log todas las soluciones que hay en la población
@@ -66,16 +66,86 @@ int calculos::frog(ofstream &log){
 
 void calculos::generarPobl(){
 	individuo *ind;
-	for (int i = 0; i < population; i++) {
+	int i, lim;
+	tipo_fitness *fitness;
+	int max_satis_req, min_satis_req, max_efor_req, min_efor_req;
+	double satis_norm, efor_norm;
+	
+	for (i = 0; i < population; i++) {
 		ind = &poblacion[i];
 		ind->X = new int[lf.getLong()];//determinar el tamaño de cada individuo
-		ind->S=0;
-		ind->E=0;
+		ind->S = 0;
+		ind->E = 0;
 		ind->rank = 0;
 		ind->crowding = 0;
 		ind->violations = 0;
-		generarRand(ind);
 	}
+	
+	//límite o número máximo de soluciones conscientes del problema (problem aware) generadas
+	lim = lf.getLong();
+	if (lim > population) lim = population;
+	
+	//obtener la satisfacción y esfuerzo máximo y mínimo por requisito, para poder normalizar
+	max_satis_req = min_satis_req = satis[0];
+	max_efor_req = min_efor_req = efor[0];
+	for (i = 1; i < lf.getLong(); i++) {
+		if (satis[i] > max_satis_req) max_satis_req = satis[i];
+		else
+			if (satis[i] < min_satis_req) min_satis_req = satis[i];
+		
+		if (efor[i] > max_efor_req) max_efor_req = efor[i];
+		else
+			if (efor[i] < min_efor_req) min_efor_req = efor[i];
+	}
+	
+	//este vector nos va a permitir "intuir" qué requisitos nos producen más mejora (una vez normalizados)
+	fitness = new tipo_fitness[lf.getLong()];
+	for (i = 0; i < lf.getLong(); i++) {
+		fitness[i].req = i;
+		satis_norm = (satis[i] - min_satis_req)/(double)(max_satis_req - min_satis_req);
+		efor_norm = (efor[i] - min_efor_req)/(double)(max_efor_req - min_efor_req);
+		fitness[i].fit = satis_norm / efor_norm;
+	}
+	
+	//ordenar los requisitos por mejora "intuida" (los de mayor "fit" primero)
+	qsort(fitness,lf.getLong(),sizeof(tipo_fitness),compare_fitness);
+	
+	//generar "lim" soluciones conscientes del problema (problem aware)
+	for (i = 0; i < lim; i++)
+		generarProblemAware(&poblacion[i],i+1,fitness);
+	
+	//generar un individuo sin requisitos
+	if (lim < population) generarProblemAware(&poblacion[lim],0,fitness);
+	
+	delete[] fitness;
+	
+	//generar el resto de soluciones de forma aleatoria
+	for (i = lim+1; i < population; i++)
+		generarRand(&poblacion[i]);
+}
+
+int calculos::compare_fitness(const void *a, const void *b) {	
+	tipo_fitness *orderA = (tipo_fitness *)a;	
+	tipo_fitness *orderB = (tipo_fitness *)b;	
+	if (orderA->fit > orderB->fit) return -1;	
+	if (orderA->fit < orderB->fit) return 1;	
+	return 0;
+}
+
+void calculos::generarProblemAware(individuo *ind, int pos, tipo_fitness *fitness){
+	int i;
+
+	for (i = 0; i < lf.getLong(); i++) {//inicialmente rellenar a 0
+		ind->X[i] = 0;
+	}
+
+	//rellenar el número de posiciones que se indica con los "pos" mejores requisitos
+	for (i = 0; i < pos; i++) {
+		ind->X[fitness[i].req] = 1;
+	}
+	
+	ind->violations = lf.chequear(ind->X);
+	calcularSyE(ind);//calcular esfuerzo y satisfacción
 }
 
 void calculos::generarRand(individuo *ind){
@@ -91,11 +161,6 @@ void calculos::generarRand(individuo *ind){
 
 
 void calculos::writeFile(ofstream &log, individuo ind){
-	
-	/*if (ind.violations != 0){
-		ind.violations = lf.chequear(ind.X);
-		calcularSyE(&ind);// calcular esfuerzo y satisfacción	
-	}*/
 
 	if (ind.violations != 0){
 		lf.reparar(ind.X);
@@ -110,30 +175,19 @@ void calculos::writeFile(ofstream &log, individuo ind){
 	//por cada solución almacenada en el fichero
 }
 
-
 void calculos::repartir() {
-	int j, a, inc_dec;
-
-	j = a = 0;
-	inc_dec = +1;
-	for (int i = 0; i < population; i++) {
+	int j,a;
+	j=a=0;
+	for(int i = 0; i < population; i++){
 		change(&charcos[j].inds[a],&poblacion[i]);
-		if ((j+inc_dec) == nCharcos) {
-			inc_dec = -1;
+		if(j+1 == nCharcos ){
+			j=0;
 			a++;
-		}
-		else {
-			if ((j+inc_dec) == -1) {
-				inc_dec = +1;
-				a++;
-			}
-			else {
-				j += inc_dec;	
-			}
+		}else{
+			j++;
 		}
 	}
 }
-
 
 void calculos::reagrupar(){
 	int a;
@@ -440,6 +494,15 @@ void calculos::imprimirI(individuo *ind){
 	cout << endl;
 }
 
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+
 /* Calculate lower and upper bounds for the different objective functions */
 void calculos::calculate_bounds(int num_sol, individuo *listInd) {
 	int i;
@@ -555,7 +618,7 @@ void calculos::rank_crowding(int num_sol, individuo *listInd) {
 	max_front=i;			//max_front obtiene la cantidad de rangos que hay
 	for (i=1;i < max_front;i++) {
 			// Primero lo hacemos con el esfuerzo
-		qsort(&copy_sol[p],ranks_size[i],sizeof(individuo),compare_efort);   	//se ordena con sort
+		qsort(&copy_sol[p],ranks_size[i],sizeof(individuo),compare_efort);  	 	//se ordena con sort
 		copy_sol[p].crowding=copy_sol[p+ranks_size[i]-1].crowding=DBL_MAX;  		//se establece infinito en el primero y en el último
 		ini=p-1;		
 		for (p++;p < ini+ranks_size[i];p++)											//se recorre el rango p(p es equivalente a un indice)

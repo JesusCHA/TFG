@@ -58,12 +58,20 @@ class calculos {
 
 		int prob_mut;
 
+		struct tipo_fitness {
+			int req;			//número de requisito
+			double fit;			//fitness asociado
+		};
+
 	public:
 		calculos();
 
 		int frog(ofstream &log);
 
 		void generarPobl();
+		static int compare_fitness(const void *a, const void *b);
+		void generarProblemAware(individuo *ind, int pos, tipo_fitness *fitness);
+
 		void generarRand(individuo *ind);
 
 		void writeFile(ofstream &log, individuo ind);

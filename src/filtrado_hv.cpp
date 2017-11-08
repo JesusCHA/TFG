@@ -16,10 +16,10 @@ newInd->X = (int*)malloc(lf.getLong() * sizeof(int));
 
 filtrado_hv::filtrado_hv(){
 	nsol = 0;
-	nFich ="";
+	nFich = "";
 
-	max_satis=893;
-	max_efort=85;
+	max_satis = lf.getmaxS();
+	max_efort = lf.getmaxE();
 
 }
 

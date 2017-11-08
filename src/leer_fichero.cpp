@@ -37,6 +37,7 @@ void leerfich::body() {
 
 	data.open("../data_set1.txt");
 	if (data.is_open()) {
+		leer_maximos(data);
 		leer_clientes(data);
 		getline(data, frase, '\n');
 		length = atoi(frase.c_str());
@@ -48,6 +49,15 @@ void leerfich::body() {
 		data.close();
 	}
 
+}
+
+void leerfich::leer_maximos(fstream &data) {
+	string frase;
+
+	getline(data, frase, ' ');	
+	maxS = atoi(frase.c_str());
+	getline(data, frase, '\n');
+	maxE = atoi(frase.c_str());
 }
 
 void leerfich::leer_recursos(fstream &data) {
@@ -251,6 +261,14 @@ int leerfich::getNClientes(){
 int* leerfich::getEsfuerzo(){
 	return esfuerzo;
 }	
+
+int leerfich::getmaxS() {
+	return maxS;
+}
+
+int leerfich::getmaxE() {
+	return maxE;
+}
 
 leerfich::~leerfich() {
 	delete[] esfuerzo;

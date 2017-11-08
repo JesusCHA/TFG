@@ -23,6 +23,9 @@ private:
 	int clientes;
 	int condicones;
 
+	int maxS;
+	int maxE;
+
 	struct conditions{
 		int primero;
 		int segundo;
@@ -42,9 +45,12 @@ public:
 	void body();
 	void print();
 	void calcualrSa(int satis[]);//-----------------------------------------------------------
+	
+	void leer_maximos(fstream &data);
 	void leer_clientes(fstream &data);
 	void leer_recursos(fstream &data);
 	void leer_condiciones(fstream &data);
+	
 	void solucion();//-------------------------------------------------------------
     
     void reparar(int individuo[]);
@@ -54,6 +60,10 @@ public:
 	int getLong();
 	int getNClientes();
 	int* getEsfuerzo();
+
+	int getmaxS();
+	int getmaxE();
+
 	~leerfich();
 };
 
