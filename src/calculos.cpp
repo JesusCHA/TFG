@@ -25,6 +25,8 @@ calculos::calculos() {
 	lf.calcualrSa(satis);
 	efor = lf.getEsfuerzo();
 
+
+
 	poblacion = new individuo[population];
 	charcos = new memeplex[nCharcos];
 	for(int i = 0; i < nCharcos; i++){
@@ -67,7 +69,6 @@ int calculos::frog(ofstream &log){
 void calculos::generarPobl(){
 	individuo *ind;
 	int i, lim;
-	tipo_fitness *fitness;
 	int max_satis_req, min_satis_req, max_efor_req, min_efor_req;
 	double satis_norm, efor_norm;
 	
@@ -79,6 +80,7 @@ void calculos::generarPobl(){
 		ind->rank = 0;
 		ind->crowding = 0;
 		ind->violations = 0;
+		ind->num_req = 0;
 	}
 	
 	//límite o número máximo de soluciones conscientes del problema (problem aware) generadas
@@ -100,6 +102,12 @@ void calculos::generarPobl(){
 	
 	//este vector nos va a permitir "intuir" qué requisitos nos producen más mejora (una vez normalizados)
 	fitness = new tipo_fitness[lf.getLong()];
+	
+	/*for (i = 0; i < lf.getLong(); i++){
+		fitness[i].req = 0;
+		fitness[i].fit = 0;
+	}*/
+
 	for (i = 0; i < lf.getLong(); i++) {
 		fitness[i].req = i;
 		satis_norm = (satis[i] - min_satis_req)/(double)(max_satis_req - min_satis_req);
@@ -112,12 +120,10 @@ void calculos::generarPobl(){
 	
 	//generar "lim" soluciones conscientes del problema (problem aware)
 	for (i = 0; i < lim; i++)
-		generarProblemAware(&poblacion[i],i+1,fitness);
+		generarProblemAware(&poblacion[i],i+1);
 	
 	//generar un individuo sin requisitos
-	if (lim < population) generarProblemAware(&poblacion[lim],0,fitness);
-	
-	delete[] fitness;
+	if (lim < population) generarProblemAware(&poblacion[lim],0);
 	
 	//generar el resto de soluciones de forma aleatoria
 	for (i = lim+1; i < population; i++)
@@ -132,7 +138,7 @@ int calculos::compare_fitness(const void *a, const void *b) {
 	return 0;
 }
 
-void calculos::generarProblemAware(individuo *ind, int pos, tipo_fitness *fitness){
+void calculos::generarProblemAware(individuo *ind, int pos){
 	int i;
 
 	for (i = 0; i < lf.getLong(); i++) {//inicialmente rellenar a 0
@@ -201,15 +207,17 @@ void calculos::reagrupar(){
 }
 
 void calculos::calcularSyE(individuo *ind){
-	int s = 0, e = 0;
+	int s = 0, e = 0, r = 0;
 	for(int i = 0; i < lf.getLong(); i++){
 		if(ind->X[i] == 1){
 			s = s + satis[i];
 			e = e + efor[i];
+			r++;
 		}
 	}
 	ind->S = s;
 	ind->E = e;
+	ind->num_req = r;
 }
 
 void calculos::change(individuo *a, individuo *b){
@@ -219,9 +227,11 @@ void calculos::change(individuo *a, individuo *b){
 	a->S = b->S;
 	a->E = b->E;
 	a->violations = b->violations;
+	a->num_req = b->num_req;
 }
 
 void calculos::mejorar(ofstream &log){
+
 
 	individuo *newInd;
 	newInd = new individuo();
@@ -247,8 +257,9 @@ void calculos::mejorar(ofstream &log){
 		//--------------bucle de mejorar va desde aquí
 		for(int k=0; k < evCharco;k++){
 			
-			mejorarInd(mejor->X, peor->X, newInd); //mejorar individuo con el mejor del charco 
-
+			//mejorarInd(mejor->X, peor->X, newInd); //mejorar individuo con el mejor del charco 
+			mejorarInd(peor, newInd);
+			
 			newInd->violations = lf.chequear(newInd->X);
 			calcularSyE(newInd); // cambiar
 			
@@ -258,8 +269,8 @@ void calculos::mejorar(ofstream &log){
 				
 			}else{
 				posMG = rand()%3;
-				mejorarInd(mejorG[posMG]->X, peor->X, newInd); //mejorar individuo con el mejor global
-				
+				//mejorarInd(mejorG[posMG]->X, peor->X, newInd); //mejorar individuo con el mejor global
+				mejorarInd(peor, newInd);
 				
 				newInd->violations = lf.chequear(newInd->X);
 				calcularSyE(newInd); // cambiar
@@ -308,41 +319,43 @@ void calculos::mejorar(ofstream &log){
 	/////////////////////////////////////////////
 }
 
-void calculos::mejorarInd(int mejor[], int peor[], individuo *newInd){
-	int i, r;
+void calculos::mejorarInd(individuo *peor, individuo *newInd){
+	int r1, r2, i;
 
-	for (i = 0; i < lf.getLong(); i++){
-		if (peor[i] == mejor[i]){
-			newInd->X[i] = peor[i];
-		}else{
-			r = rand()%100;
-			if (r < aprender) newInd->X[i] = mejor[i]; 
-			else newInd->X[i] = peor[i];
-		}
-	}
+	change(newInd, peor);
 	
-	r = rand()%2;
-	if (r == 0){ //Mutación aleatoria (al azar)
-		for (i = 0; i < lf.getLong(); i++){
-			r = rand()%100;
-			if (r < prob_mut) //Invertir el valor de esa posición
-				if (newInd->X[i] == 1) newInd->X[i] = 0;
-				else newInd->X[i] = 1;
-		}
-	}
-	else{ //Mutación avariciosa (buscando mejorar el individuo)
-		r = rand()%2;
-		switch (r){
-			case 0:
+	if (newInd->num_req == lf.getLong()) r1 = 0;
+	else
+		if (newInd->num_req == 0) r1 = 2;
+		else r1 = rand() % 3;
+		
+	switch (r1) {
+		case 0: //eliminar un requisito (el que pensamos es peor)
+			for (i = lf.getLong() - 1; i >= 0; i--)
+				if (newInd->X[fitness[i].req] == 1) {
+					newInd->X[fitness[i].req] = 0;
+					break;
+				}
+			break;
+		case 1: //cambiar un requisito por otro mejor
+			r2 = rand() % 2;
+			if (r2 == 0) {
 				//Intentamos mejorar la satisfacción, pero si no lo conseguimos intentamos mejorar el esfuerzo
-				if (mejorarIndSatis(newInd) == -1) mejorarIndEfor(newInd);
-			break;   
-			case 1:
+				if (mejorarIndSatis(newInd) == -1) mejorarIndEfor(newInd);				
+			}
+			else {
 				//Intentamos mejorar el esfuerzo, pero si no lo conseguimos intentamos mejorar la satisfacción
 				if (mejorarIndEfor(newInd) == -1) mejorarIndSatis(newInd);
+			}
 			break;
-		}			
-	}
+		case 2: //añadir un requisito (el mejor posible)
+			for (i = 0; i < lf.getLong(); i++)
+				if (newInd->X[fitness[i].req] == 0) {
+					newInd->X[fitness[i].req] = 1;
+					break;
+				}
+			break;
+	}	
 }
 
 int calculos::mejorarIndSatis(individuo *newInd){
@@ -656,5 +669,7 @@ calculos::~calculos() {
 	delete[] poblacion;
 
 	delete[] satis;
+	
+	delete[] fitness;
 }
  /* namespace std */

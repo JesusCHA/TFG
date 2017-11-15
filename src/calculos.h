@@ -24,6 +24,7 @@ class calculos {
 		int rank;			//ranking de dominancia
 		double crowding;	//distancia crowding
 		int violations;		//numero de restricciones violadas (no cumplidas)
+		int num_req;		//numero de req
 		};
 	
 		leerfich lf;			//instancia de leerficheros
@@ -63,6 +64,8 @@ class calculos {
 			double fit;			//fitness asociado
 		};
 
+		tipo_fitness *fitness;	
+
 	public:
 		calculos();
 
@@ -70,7 +73,7 @@ class calculos {
 
 		void generarPobl();
 		static int compare_fitness(const void *a, const void *b);
-		void generarProblemAware(individuo *ind, int pos, tipo_fitness *fitness);
+		void generarProblemAware(individuo *ind, int pos);
 
 		void generarRand(individuo *ind);
 
@@ -84,7 +87,7 @@ class calculos {
 		int  domina(individuo *a,individuo *b);
 		void mejorar(ofstream &log);
 
-		void mejorarInd(int mejor[], int peor[], individuo *newInd);
+		void mejorarInd(individuo *peor, individuo *newInd);
 		int mejorarIndSatis(individuo *newInd);
 		int mejorarIndEfor(individuo *newInd);
 
