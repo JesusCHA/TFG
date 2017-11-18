@@ -26,7 +26,6 @@ calculos::calculos() {
 	efor = lf.getEsfuerzo();
 
 
-
 	poblacion = new individuo[population];
 	charcos = new memeplex[nCharcos];
 	for(int i = 0; i < nCharcos; i++){
@@ -39,8 +38,11 @@ calculos::calculos() {
 
 int calculos::frog(ofstream &log){
 	
+	fitness = new tipo_fitness[lf.getLong()];
+
 	generarPobl();	
 
+	
 	sol_log = 0;
 
 	for (int i = 0; i < evaluaciones; ++i){
@@ -54,6 +56,7 @@ int calculos::frog(ofstream &log){
 		reagrupar();	
 	}
 
+	delete [] fitness;
 	// Guardar en el fichero log todas las soluciones que hay en la población
 	// satisfaccion;esfuerzo;vector X en cada línea del fichero
 	for (int i = 0; i < population; i++){
@@ -62,6 +65,8 @@ int calculos::frog(ofstream &log){
 	}
 		
 	//volver a ordenar y listarx
+
+
 	
 	return sol_log;
 }
@@ -101,12 +106,12 @@ void calculos::generarPobl(){
 	}
 	
 	//este vector nos va a permitir "intuir" qué requisitos nos producen más mejora (una vez normalizados)
-	fitness = new tipo_fitness[lf.getLong()];
 	
-	/*for (i = 0; i < lf.getLong(); i++){
+	
+	for (i = 0; i < lf.getLong(); i++){
 		fitness[i].req = 0;
-		fitness[i].fit = 0;
-	}*/
+		fitness[i].fit = 0.0;
+	}
 
 	for (i = 0; i < lf.getLong(); i++) {
 		fitness[i].req = i;
@@ -232,13 +237,13 @@ void calculos::change(individuo *a, individuo *b){
 
 void calculos::mejorar(ofstream &log){
 
-
 	individuo *newInd;
 	newInd = new individuo();
 	newInd->X = new int[lf.getLong()];
 	newInd->S = 0;
 	newInd->E = 0;
 	newInd->violations = 0;
+	newInd->num_req = 0;
 
 	individuo *mejorG[3]; 
 	individuo *mejor;
@@ -264,10 +269,13 @@ void calculos::mejorar(ofstream &log){
 			calcularSyE(newInd); // cambiar
 			
 			if(domina(newInd, peor) == 1){
-				
-				change(&charcos[j].inds[sizeCharco-1],newInd);
-				
+				writeFile(log, charcos[j].inds[sizeCharco-1]);// Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
+				sol_log++;
+				change(&charcos[j].inds[sizeCharco-1],newInd);				
 			}else{
+				writeFile(log, *newInd);// Guardar en el fichero log la solución
+				sol_log++;
+
 				posMG = rand()%3;
 				//mejorarInd(mejorG[posMG]->X, peor->X, newInd); //mejorar individuo con el mejor global
 				mejorarInd(peor, newInd);
@@ -277,14 +285,16 @@ void calculos::mejorar(ofstream &log){
 				k++; //hemos evaluado la s y e una vez más
 				
 				if(domina(newInd, peor) == 1){
-					
+					writeFile(log, charcos[j].inds[sizeCharco-1]);// Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
+					sol_log++;
 					change(&charcos[j].inds[sizeCharco-1],newInd);
 				} else {
-					
+					writeFile(log, *newInd);// Guardar en el fichero log la solución
+					sol_log++;
+
 					generarRand(newInd);
 					writeFile(log, charcos[j].inds[sizeCharco-1]);// Guardar en el fichero log la solución que hay en charcos[j].inds[sizeCharco-1] 
 					sol_log++;		
-
 					change(&charcos[j].inds[sizeCharco-1],newInd);
 				}
 			}
@@ -301,16 +311,20 @@ void calculos::mejorar(ofstream &log){
 			}
 
 			change(&charcos[j].inds[pos+1],&auxInd);
-			for (int g = 2; g >= 0; g--){
-				if (domina(&auxInd,mejorG[g]) == 1){
-					 mejorG[g] = &auxInd;
-					 break;
-				}
+
+			int g = 2;
+			if (domina(mejorG[2],mejorG[1]) == 1) {
+				g = 1;
+				if (domina(mejorG[1],mejorG[0]) == 1) g = 0;
 			}
+			else
+				if (domina(mejorG[2],mejorG[0]) == 1) g = 0;
+													
+			mejorG[g] = &charcos[j].inds[pos+1];
+			
 			delete[] auxInd.X;
 		}
 		//-------------hasta aquí ---	
-
 	}
 
 	/////////////////////////////////////////////
@@ -449,10 +463,6 @@ int calculos::mejorarIndEfor(individuo *newInd){
 int calculos::domina(individuo *a,individuo *b) {
     int flag1,flag2;
     flag1=flag2=0;
-
-	if (a->violations < b->violations) return 1;
-	if (a->violations > b->violations) return -1;
-	if (a->violations != 0) return 0;
 		
     if (a->E < b->E) flag1=1;
     else if (a->E > b->E) flag2=1;
@@ -670,6 +680,5 @@ calculos::~calculos() {
 
 	delete[] satis;
 	
-	delete[] fitness;
 }
  /* namespace std */
