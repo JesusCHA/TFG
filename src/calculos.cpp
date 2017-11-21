@@ -12,9 +12,9 @@ using namespace std ;
 calculos::calculos() {
 
 	population = 40;
-	nCharcos = 4;
+	nCharcos = 5;
 	sizeCharco = population/nCharcos;
-	evCharco = 25;
+	evCharco = 1;
 	evaluaciones = 10000 / (nCharcos * evCharco);
 	aprender = 75;
 	prob_mut = 20;
@@ -252,7 +252,8 @@ void calculos::mejorar(ofstream &log){
 
 	mejorG[0] = &charcos[0].inds[0];
 	mejorG[1] = &charcos[1].inds[0];
-	mejorG[2] = &charcos[2].inds[0];
+	if (nCharcos > 2) mejorG[2] = &charcos[2].inds[0];
+	else mejorG[2] = &charcos[0].inds[1];
 
 	for(int j = 0; j<nCharcos; j++){
 
@@ -320,7 +321,7 @@ void calculos::mejorar(ofstream &log){
 			else
 				if (domina(mejorG[2],mejorG[0]) == 1) g = 0;
 													
-			mejorG[g] = &charcos[j].inds[pos+1];
+			if (domina(&auxInd,mejorG[g]) == 1)	mejorG[g] = &charcos[j].inds[pos+1];
 			
 			delete[] auxInd.X;
 		}
