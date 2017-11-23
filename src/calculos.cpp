@@ -19,6 +19,8 @@ calculos::calculos() {
 	aprender = 75;
 	prob_mut = 20;
 
+	limiteEsfuerzo = (double)(lf.getmaxE() * lf.getlimE())/100;
+
 	sol_log = 0;
 
 	satis= new int[lf.getLong()];
@@ -90,7 +92,7 @@ void calculos::generarPobl(){
 	
 	//límite o número máximo de soluciones conscientes del problema (problem aware) generadas
 	lim = lf.getLong();
-	if (lim > population) lim = population;
+	if (lim > population) lim = population-1;
 	
 	//obtener la satisfacción y esfuerzo máximo y mínimo por requisito, para poder normalizar
 	max_satis_req = min_satis_req = satis[0];
@@ -106,8 +108,6 @@ void calculos::generarPobl(){
 	}
 	
 	//este vector nos va a permitir "intuir" qué requisitos nos producen más mejora (una vez normalizados)
-	
-	
 	for (i = 0; i < lf.getLong(); i++){
 		fitness[i].req = 0;
 		fitness[i].fit = 0.0;
@@ -172,14 +172,31 @@ void calculos::generarRand(individuo *ind){
 
 
 void calculos::writeFile(ofstream &log, individuo ind){
-
-	if (ind.violations != 0){
-		lf.reparar(ind.X);
-		calcularSyE(&ind);// calcular esfuerzo y satisfacción	
+	int i, intentos = 1;
+	
+	do {
+		while (ind.E > limiteEsfuerzo) {
+			for (i = lf.getLong() - 1; i >= 0; i--)
+				if (ind.X[fitness[i].req] == 1) {
+					ind.X[fitness[i].req] = 0;
+					ind.S -= satis[fitness[i].req];
+					ind.E -= efor[fitness[i].req];
+					ind.num_req--;
+					break;
+				}
+		}
+				
+		if (ind.violations != 0){
+			lf.reparar(ind.X, intentos);
+			calcularSyE(&ind);// calcular esfuerzo y satisfacción	
+		}
+		
+		intentos++;
 	}
+	while (ind.E > limiteEsfuerzo);
 	
 	log << ind.S <<";"<< ind.E << ";" << "{";
-	for (int i = 0; i < lf.getLong(); ++i){
+	for (i = 0; i < lf.getLong(); ++i){
 		log << ind.X[i];
 	}
 	log << "}" << endl;
@@ -336,13 +353,15 @@ void calculos::mejorar(ofstream &log){
 
 void calculos::mejorarInd(individuo *peor, individuo *newInd){
 	int r1, r2, i;
-
-	change(newInd, peor);
 	
+	change(newInd, peor);
+			
 	if (newInd->num_req == lf.getLong()) r1 = 0;
 	else
 		if (newInd->num_req == 0) r1 = 2;
-		else r1 = rand() % 3;
+		else
+			if (newInd->E > limiteEsfuerzo) r1 = rand() % 2;
+			else r1 = rand() % 3;
 		
 	switch (r1) {
 		case 0: //eliminar un requisito (el que pensamos es peor)
@@ -353,7 +372,9 @@ void calculos::mejorarInd(individuo *peor, individuo *newInd){
 				}
 			break;
 		case 1: //cambiar un requisito por otro mejor
-			r2 = rand() % 2;
+			if (newInd->E > limiteEsfuerzo) r2 = 1;
+			else r2 = rand() % 2;
+			
 			if (r2 == 0) {
 				//Intentamos mejorar la satisfacción, pero si no lo conseguimos intentamos mejorar el esfuerzo
 				if (mejorarIndSatis(newInd) == -1) mejorarIndEfor(newInd);				
@@ -682,4 +703,4 @@ calculos::~calculos() {
 	delete[] satis;
 	
 }
- /* namespace std */
+/* namespace std */

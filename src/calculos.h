@@ -57,7 +57,9 @@ class calculos {
 		int max_satis;			//máxima satisfacción que hay en la población
 		int min_satis;			//mínima satisfacción que hay en la población
 
-		int prob_mut;
+		int prob_mut;			//probabilidad de mutar
+
+		double limiteEsfuerzo;  //límite de esfuerzo permitido
 
 		struct tipo_fitness {
 			int req;			//número de requisito

@@ -19,7 +19,7 @@ int main(void) {
 	filtrado_hv F;
 	ofstream log;	
 	
-	int sol_log;
+	int sol_log = 0;
 	string nFichero;
 
 	log.open("All_HV.csv");

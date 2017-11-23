@@ -35,8 +35,9 @@ void leerfich::body() {
 	string nombre;
 	string frase;
 
-	data.open("../data_set1.txt");
+	data.open("../data_set2.txt");
 	if (data.is_open()) {
+		
 		leer_maximos(data);
 		leer_clientes(data);
 		getline(data, frase, '\n');
@@ -48,11 +49,13 @@ void leerfich::body() {
 		}
 		data.close();
 	}
-
 }
 
 void leerfich::leer_maximos(fstream &data) {
 	string frase;
+	
+	getline(data, frase, '\n');
+	limE = atoi(frase.c_str());
 
 	getline(data, frase, ' ');	
 	maxS = atoi(frase.c_str());
@@ -98,13 +101,11 @@ void leerfich::lectura_datos(int array[], int j) {
 		for (int i = 0; i < length; i++) {
 			esfuerzo[i] = array[i];
 		}
-		cout << endl;
 		
 	} else {
 		for (int i = 0; i < length; i++) {
 			cl[i][j] = array[i];
 		}
-		cout << endl;
 	}
 }
 
@@ -171,19 +172,19 @@ void leerfich::print() {
 }
 
 //va leyendo un array de condiciones y hacen que se cumplan
-void leerfich::reparar(int individuo[]) {
+void leerfich::reparar(int individuo[], int intentos) {
 	int j;
 	
 	for (j = condicones-1; j >= 0 && cond[j].signo == "+"; j--) {
-		calcularS(cond[j].signo, cond[j].primero-1, cond[j].segundo-1, individuo);
+		calcularS(cond[j].signo, cond[j].primero-1, cond[j].segundo-1, individuo, intentos);
 	}
 	for (int i = 0; i <= j; i++) {
-		calcularS(cond[i].signo, cond[i].primero-1, cond[i].segundo-1, individuo);
+		calcularS(cond[i].signo, cond[i].primero-1, cond[i].segundo-1, individuo, intentos);
 	}
 }
 
 //desglosa el array para poder aplicar las condiciones
-void leerfich::calcularS(string signo, int a, int b, int individuo[]) {
+void leerfich::calcularS(string signo, int a, int b, int individuo[], int intentos) {
 	int posible;
 	
 	switch (signo[0]) {
@@ -196,6 +197,9 @@ void leerfich::calcularS(string signo, int a, int b, int individuo[]) {
 					break;
 				}
 			}
+			
+			if (intentos == 3) posible = 0;
+			
 			if (posible == 1) {
 				individuo[b] = 1;
 			}
@@ -270,11 +274,14 @@ int leerfich::getmaxE() {
 	return maxE;
 }
 
+int leerfich::getlimE() {
+	return limE;
+}
+
 leerfich::~leerfich() {
 	delete[] esfuerzo;
 	for (int i = 0; i < length; i++) delete[] cl[i];
 	delete[] cl;
 	delete[] w;
 	delete[] cond;
-
 }

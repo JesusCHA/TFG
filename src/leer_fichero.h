@@ -26,6 +26,8 @@ private:
 	int maxS;
 	int maxE;
 
+	int limE;
+
 	struct conditions{
 		int primero;
 		int segundo;
@@ -53,8 +55,8 @@ public:
 	
 	void solucion();//-------------------------------------------------------------
     
-    void reparar(int individuo[]);
-	void calcularS(string signo, int a, int b, int individuo[]);
+    void reparar(int individuo[], int intentos);
+	void calcularS(string signo, int a, int b, int individuo[], int intentos);
 	int chequear(int individuo[]);
 
 	int getLong();
@@ -63,6 +65,8 @@ public:
 
 	int getmaxS();
 	int getmaxE();
+	int getlimE();
+
 
 	~leerfich();
 };
