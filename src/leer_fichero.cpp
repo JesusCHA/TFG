@@ -161,14 +161,12 @@ void leerfich::calcualrSa(int satis[]) {
 void leerfich::print() {
 
 	cout << endl << endl;
-	for (int j = 0; j < clientes; j++) {
-		cout << "cliente " << j << ": ";
-		for (int i = 0; i < length; i++) {
-			cout << cl[i][j];
-			cout << " ";
-		}
-		cout << endl;
+	for (int j = 0; j < condicones; j++) {
+		cout << "condicion " << j+1 << ": ";
+		cout <<  cond[j].primero << " " << cond[j].signo << " " << cond[j].segundo<< endl;
 	}
+	cout << endl;
+	
 }
 
 //va leyendo un array de condiciones y hacen que se cumplan

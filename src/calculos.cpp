@@ -34,7 +34,6 @@ calculos::calculos() {
 		charcos[i].inds = new individuo[sizeCharco];
 		for (int j = 0; j < sizeCharco; j++) charcos[i].inds[j].X = new int[lf.getLong()];
 	}
-	
 }
 
 

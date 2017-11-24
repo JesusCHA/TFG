@@ -220,6 +220,6 @@ filtrado_hv::~filtrado_hv(){
 	}
 	
 	delete[] soluciones;
-	delete[] solR;	
+	delete[] solR;
 }
 
