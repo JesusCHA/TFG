@@ -1,0 +1,27 @@
+/*
+ * Begin;
+Generate random population of P solutions (individuals);
+
+v2 = rand() % 100 + 1;
+
+For each individuali E P: calculate fitness (i); --> calcular estado individual de cada elemento (esfuerzo)
+
+Sort the whole population P in descending order of their fitness; --> listar la población segun su estado (de mejor a peor)
+
+	Divide the population P into m memeplexes; --> dividir la población entre los charcos 4 charcos
+
+	For each memeplex;
+		determinar el mejor y peor individuo de cada charco;
+
+		Improve the worst individual position using Eqs. 1 -> mejorar el peor 
+		and 2;
+		Repeat for a specific number of iterations; --> repetir un número de veces.
+	End;
+
+Combine the evolved memeplexes; --> combinar los charcos
+Sort the population P in descending order of their fitness; --> listar la población segun su estado (de mejor a peor)
+Check if termination = true;
+End;
+ */
+
+
