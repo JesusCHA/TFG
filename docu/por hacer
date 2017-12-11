@@ -1,6 +1,8 @@
-Resumen
+
 
 Introducción
+
+	Estructura de la documentación
 
 Objetivos
 
@@ -8,27 +10,37 @@ Antecedentes
 
 	·Requisitos software(teoría) – <
 
+		·NRP
+
 	·Técnicas de optimización
 		
 			--hablar sobre más metaheurísticas si necesito más páginas (OPCIONAL)
-
-		--Hablar sobre las técnicas basadas en población
-
-	·Algoritmo evolutivos
-
-		--Hablar de los diferentes algoritmos evolutivos que existen
+		
+		·Metaheurísticas
 
 	·Algoritmos basados en inteligencia de enjambres
 
-		--Hablar de todos los algoritmos de inteligencia de enjambre que existen
+		·Tipos de algoritmos basados en población			
+
+	·Algoritmo evolutivos
+
+		·Técnicas evolutivas
+
+		·Tipos de algoritmos evolutivos
 
 	·Algoritmo de las ranas
 
-		--Explicar el algoritmo de las ranas 
-
 	·Optimización multiobjetivo – Reviar
 
+		·Primer apartado
+
+		·Pareto
+
+		·Requisitos y clientes
+
 	·Definición MO del problema de requisitos softwares – Revisar
+
+		·Codificación de la solución
 
 Material Y Método
 
