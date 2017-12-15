@@ -35,7 +35,7 @@ void leerfich::body() {
 	string nombre;
 	string frase;
 
-	data.open("../data_set2.txt");
+	data.open("../data_set1.txt");
 	if (data.is_open()) {
 		
 		leer_maximos(data);

@@ -11,6 +11,7 @@
 #include "leer_fichero.h"
 #include <float.h>
 #include <climits>
+#include <math.h>
 
 namespace std {
 
@@ -61,6 +62,8 @@ class calculos {
 
 		double limiteEsfuerzo;  //límite de esfuerzo permitido
 
+		int limiteReq;			//límite ...
+
 		struct tipo_fitness {
 			int req;			//número de requisito
 			double fit;			//fitness asociado
@@ -74,6 +77,7 @@ class calculos {
 		int frog(ofstream &log);
 
 		void generarPobl();
+		static int compare(const void *a, const void *b);
 		static int compare_fitness(const void *a, const void *b);
 		void generarProblemAware(individuo *ind, int pos);
 

@@ -27,22 +27,38 @@ calculos::calculos() {
 	lf.calcualrSa(satis);
 	efor = lf.getEsfuerzo();
 
-
+	
+	
 	poblacion = new individuo[population];
 	charcos = new memeplex[nCharcos];
 	for(int i = 0; i < nCharcos; i++){
 		charcos[i].inds = new individuo[sizeCharco];
 		for (int j = 0; j < sizeCharco; j++) charcos[i].inds[j].X = new int[lf.getLong()];
+	}	
+
+
+	int *efor_aux = new int[lf.getLong()];
+	
+	for (int i = 0; i < lf.getLong(); i++)
+		efor_aux[i] = efor[i];
+	
+	qsort(efor_aux,lf.getLong(),sizeof(int),compare);
+	
+	int totE = 0;
+	for (limiteReq = 0; (limiteReq < lf.getLong()) && (totE+efor_aux[limiteReq] <= limiteEsfuerzo); limiteReq++){
+		totE += efor_aux[limiteReq];
 	}
+	
+	delete [] efor_aux;
+
 }
 
 
 int calculos::frog(ofstream &log){
 	
 	fitness = new tipo_fitness[lf.getLong()];
-
+	
 	generarPobl();	
-
 	
 	sol_log = 0;
 
@@ -53,9 +69,10 @@ int calculos::frog(ofstream &log){
 		repartir(); //repartir entre los charcos
 		
 		mejorar(log); //determinar el mejor y le peor de cada charco
-		
+
 		reagrupar();	
 	}
+
 
 	delete [] fitness;
 	// Guardar en el fichero log todas las soluciones que hay en la población
@@ -66,14 +83,12 @@ int calculos::frog(ofstream &log){
 	}
 		
 	//volver a ordenar y listarx
-
-
 	
 	return sol_log;
 }
 
 void calculos::generarPobl(){
-	individuo *ind;
+individuo *ind;
 	int i, lim;
 	int max_satis_req, min_satis_req, max_efor_req, min_efor_req;
 	double satis_norm, efor_norm;
@@ -88,11 +103,7 @@ void calculos::generarPobl(){
 		ind->violations = 0;
 		ind->num_req = 0;
 	}
-	
-	//límite o número máximo de soluciones conscientes del problema (problem aware) generadas
-	lim = lf.getLong();
-	if (lim > population) lim = population-1;
-	
+
 	//obtener la satisfacción y esfuerzo máximo y mínimo por requisito, para poder normalizar
 	max_satis_req = min_satis_req = satis[0];
 	max_efor_req = min_efor_req = efor[0];
@@ -122,16 +133,61 @@ void calculos::generarPobl(){
 	//ordenar los requisitos por mejora "intuida" (los de mayor "fit" primero)
 	qsort(fitness,lf.getLong(),sizeof(tipo_fitness),compare_fitness);
 	
-	//generar "lim" soluciones conscientes del problema (problem aware)
-	for (i = 0; i < lim; i++)
-		generarProblemAware(&poblacion[i],i+1);
+	//límite o número máximo de soluciones conscientes del problema (problem aware) generadas
+
+	lim = limiteReq;
 	
-	//generar un individuo sin requisitos
-	if (lim < population) generarProblemAware(&poblacion[lim],0);
+	if (lim < population) {
+		//generar un individuo sin requisitos
+		generarProblemAware(&poblacion[0],0);
 	
-	//generar el resto de soluciones de forma aleatoria
-	for (i = lim+1; i < population; i++)
-		generarRand(&poblacion[i]);
+		//generar "lim" soluciones conscientes del problema (problem aware)
+		for (i = 1; i <= lim; i++){
+			generarProblemAware(&poblacion[i],i);
+		}
+		
+		//generar el resto de soluciones de forma aleatoria
+		for (i = lim+1; i < population; i++){
+			generarRand(&poblacion[i]);
+		}
+	}
+	else {
+		int totE = 0;
+		double dec;
+		
+		//generar un individuo sin requisitos
+		generarProblemAware(&poblacion[0],0);
+		
+		for (i = 0; (i < lf.getLong()) && (totE+efor[fitness[i].req] <= limiteEsfuerzo); i++){
+			totE += efor[fitness[i].req];
+		}
+		
+		lim = i;
+		if (lim > (population-1)) {
+			dec = (double)(lim)/(population-1);
+			//generar "population - 1" soluciones conscientes del problema (problem aware)
+			for (i = 1; i < population; i++) {
+				generarProblemAware(&poblacion[i],lim);
+				lim = round(lim - dec);
+			}
+		}
+		else {
+			//generar "lim" soluciones conscientes del problema (problem aware)
+			for (i = 1; i <= lim; i++){
+				generarProblemAware(&poblacion[i],i);
+			}
+		
+			//generar el resto de soluciones de forma aleatoria
+			for (i = lim+1; i < population; i++)
+				generarRand(&poblacion[i]);
+		}
+	}
+}
+
+
+
+int calculos::compare(const void *a, const void *b) {	
+	return ( *(int*)a - *(int*)b );
 }
 
 int calculos::compare_fitness(const void *a, const void *b) {	
@@ -141,6 +197,7 @@ int calculos::compare_fitness(const void *a, const void *b) {
 	if (orderA->fit < orderB->fit) return 1;	
 	return 0;
 }
+
 
 void calculos::generarProblemAware(individuo *ind, int pos){
 	int i;
@@ -159,14 +216,26 @@ void calculos::generarProblemAware(individuo *ind, int pos){
 }
 
 void calculos::generarRand(individuo *ind){
-	int r;
-	for(int i = 0; i < lf.getLong(); i++){//crear aleatorios
-		r = rand()%2;
-		ind->X[i] = r;
+	int i, r, nr;
+	
+	for (i = 0; i < lf.getLong(); i++) { //inicialmente rellenar a 0
+		ind->X[i] = 0;
 	}
+	
 
+	nr = 1 + rand() % limiteReq; //número de requisitos a usar
+		
+	for (i = 0; i < nr; i++){ //usar requisitos aleatorios
+		r = rand() % lf.getLong();
+		while (ind->X[r] != 0)
+			if (r == lf.getLong()-1) r=0;
+			else r++;
+
+		ind->X[r] = 1;
+	}
+	
 	ind->violations = lf.chequear(ind->X);
-	calcularSyE(ind);// calcular esfuerzo y satisfacción
+	calcularSyE(ind); //calcular esfuerzo y satisfacción
 }
 
 
@@ -359,7 +428,10 @@ void calculos::mejorarInd(individuo *peor, individuo *newInd){
 	else
 		if (newInd->num_req == 0) r1 = 2;
 		else
-			if (newInd->E > limiteEsfuerzo) r1 = rand() % 2;
+			if (newInd->E > limiteEsfuerzo) {
+				if (newInd->num_req > limiteReq) r1 = 0;
+				else r1 = rand() % 2;
+			}
 			else r1 = rand() % 3;
 		
 	switch (r1) {
@@ -654,7 +726,7 @@ void calculos::rank_crowding(int num_sol, individuo *listInd) {
 	/* Crowding distance assignment */
 	calculate_bounds(num_sol, listInd);
 	for (p=0;p < num_sol;p++) {
-		copy_sol[p]=listInd[rank[p]]; //copia la poblacion de individuos
+		copy_sol[p]=listInd[rank[p]];   //copia la poblacion de individuos
 		copy_sol[p].crowding=0;			//inicializa el crowding de toda la poblacion a 0
 	}
 
