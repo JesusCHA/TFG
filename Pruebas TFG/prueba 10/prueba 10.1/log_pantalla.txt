@@ -1,0 +1,43 @@
+jesusiano@jesusiano-K53SV:~/TFG/src$ make
+g++ -c calculos.cpp
+g++ -c leer_fichero.cpp
+g++ -o tfg main.o calculos.o filtrado_hv.o leer_fichero.o 
+jesusiano@jesusiano-K53SV:~/TFG/src$ ./tfg 
+
+
+
+
+
+
+3903. Total number of non-dominated and different solutions = 25
+4131. Total number of non-dominated and different solutions = 31
+4173. Total number of non-dominated and different solutions = 29
+4021. Total number of non-dominated and different solutions = 28
+4073. Total number of non-dominated and different solutions = 31
+4090. Total number of non-dominated and different solutions = 27
+3915. Total number of non-dominated and different solutions = 26
+3980. Total number of non-dominated and different solutions = 27
+4266. Total number of non-dominated and different solutions = 26
+3800. Total number of non-dominated and different solutions = 25
+4138. Total number of non-dominated and different solutions = 29
+4228. Total number of non-dominated and different solutions = 27
+3990. Total number of non-dominated and different solutions = 27
+3912. Total number of non-dominated and different solutions = 28
+3898. Total number of non-dominated and different solutions = 28
+4085. Total number of non-dominated and different solutions = 27
+3993. Total number of non-dominated and different solutions = 25
+4087. Total number of non-dominated and different solutions = 26                                                                                                                          
+4072. Total number of non-dominated and different solutions = 31                                                                                                                          
+4232. Total number of non-dominated and different solutions = 31                                                                                                                          
+4077. Total number of non-dominated and different solutions = 33                                                                                                                          
+4190. Total number of non-dominated and different solutions = 28                                                                                                                          
+3921. Total number of non-dominated and different solutions = 30
+4158. Total number of non-dominated and different solutions = 29
+3931. Total number of non-dominated and different solutions = 26
+4083. Total number of non-dominated and different solutions = 27
+4538. Total number of non-dominated and different solutions = 28
+4177. Total number of non-dominated and different solutions = 28
+4027. Total number of non-dominated and different solutions = 28
+4261. Total number of non-dominated and different solutions = 26
+4196. Total number of non-dominated and different solutions = 26
+

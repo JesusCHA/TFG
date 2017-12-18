@@ -1,0 +1,75 @@
+void calculos::mejorarInd(int mejor[], int peor[], individuo *newInd){
+	int j,k,r = 0;
+	int maxS, minS, sm, sM;
+	int maxE, minE, em, eM;
+	int medS, medE;
+
+	for (int i = 0; i < lf.getLong(); i++){
+		if(peor[i] == mejor[i]){
+			newInd->X[i] = peor[i];
+		}else{
+			r = rand()%100;
+			if(r < aprender) newInd->X[i] = mejor[i]; 
+			else newInd->X[i] = peor[i];
+		}
+	}
+	r = rand()%3;
+	maxS = maxE = 0;
+	minS = minE = INT_MAX;
+	sm = sM = em = eM = 0;
+	switch (r){
+		case 0:
+			for (j = 0; j < lf.getLong(); j++){//comprobar si su satisfacción es la máxima de todos los requisitos que estan a 0
+				if(newInd->X[j]==0){
+					if(satis[j] > maxS){
+						maxS = satis[j];
+						sM = j;
+					}
+				}else if(satis[j] < minS){//comprobar si su satisfacción es la mínima de todos los requisitos que estan a 1
+					minS = satis[j];
+					sm = j;			
+				}
+			}
+			newInd->X[sM]=1;
+			newInd->X[sm]=0;
+		break;   
+
+		case 1:
+			for (j = 0; j < lf.getLong(); j++){//comprobar si su esfuerzo es la mínimo de todos los requisitos que estan a 0
+				if(newInd->X[j]==0){
+					if(efor[j] < minE){
+						minE = efor[j];
+						em = j;
+					}
+				}else if(efor[j] > maxE){//comprobar si su esfuerzi es la máximo de todos los requisitos que estan a 1
+					maxE = efor[j];
+					eM = j;
+				}
+			}
+			newInd->X[em]=1;
+			newInd->X[eM]=0;
+		break;
+
+		case 2:
+			for (j = 0; j < lf.getLong(); j++){//busca el elemento con mayor esfuerzo
+				if(newInd->X[j]==1){
+					if(efor[j] > maxE){
+						maxE = efor[j];
+						eM = j;
+					}		
+				}
+			}
+			medS = j;
+			for (j = 0; j < lf.getLong(); j++){
+				if (newInd->X[j] == 0){
+					if (satis[j] > satis[eM] && efor[j] <= efor[eM]){
+						if((satis[j] > satis[medS] && efor[j] <= efor[medS]))
+							medS = j;
+					}
+				}
+			}
+			newInd->X[medS]=1;
+			newInd->X[eM]=0;
+		break;
+	}			
+}
