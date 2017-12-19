@@ -1,28 +1,28 @@
-tasa de aprendizaje - descarto de esta misma - prueba 0
+1.-tasa de aprendizaje - descarto de esta misma - prueba 0
 
-modificar el número de charcos - prueba 1
+2.-modificar el número de charcos - prueba 1 (dejar prueba para le final)
 
-mejorar la saisfacción o el esfuerzo (eleccióno random) - prueba 2
+3.-mejorar la saisfacción o el esfuerzo (eleccióno random) - prueba 2
 
-probabilidad de que un recurso se modifique prueba - 4.2
+4.-probabilidad de que un recurso se modifique prueba - 4.2
 
-modificar el reparar del algoritmo - prueba 11.X
+5.-modificar el reparar del algoritmo - prueba 11.X
 
-generar una población más óptima - prueba 13
+6.-generar una población más óptima - prueba 13
 
-mejorar individuo - prueba 14
+7.-mejorar individuo - prueba 14
 
-el método domina - prueba 15
+8.-el método domina - prueba 15
 
-el propio método mejorar - prueba 16
+9.-el propio método mejorar - prueba 16
 
-número de charcos - prueba 17
+10.-número de charcos - prueba 17
 
-evaluaciones por charco - prueba 18
+11.-evaluaciones por charco - prueba 18
 
-introducir un nuevo data_set - prueba 19
+12.-introducir un nuevo data_set - prueba 19
 
-incluir límite de esfuerzo - prueba 22
+13.-incluir límite de esfuerzo - prueba 22
 
 
 
