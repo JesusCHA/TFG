@@ -1,16 +1,20 @@
 1.-tasa de aprendizaje - descarto de esta misma - prueba 0
 
+	HECHO
+
 2.-modificar el número de charcos - prueba 1 (dejar prueba para le final)
 
 3.-mejorar la saisfacción o el esfuerzo (eleccióno random) - prueba 2
 	
-	Seleccionar de manera aleatoria si lo que se desea es aumentar la satisfacción o disminuir el esfuerzo
+	HECHO
 
 4.-probabilidad de que un recurso se modifique - prueba 4.2	
 
-	
+	HECHO
 
 5.-modificar el reparar del algoritmo - prueba 11.X
+
+	
 
 6.-generar una población más óptima - prueba 13
 
@@ -25,6 +29,8 @@
 11.-evaluaciones por charco - prueba 18
 
 12.-introducir un nuevo data_set - prueba 19
+
+Parar aquí
 
 13.-sincluir límite de esfuerzo - prueba 22
 
