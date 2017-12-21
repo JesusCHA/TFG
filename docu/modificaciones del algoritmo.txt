@@ -14,15 +14,19 @@
 
 5.-modificar el reparar del algoritmo - prueba 11.X
 
-	
+	HECHO
 
 6.-generar una población más óptima - prueba 13
+
+	
 
 7.-mejorar individuo - prueba 14
 
 8.-el método domina - prueba 15
 
 9.-el propio método mejorar - prueba 16
+
+
 
 10.-número de charcos - prueba 17
 
