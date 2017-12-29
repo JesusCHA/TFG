@@ -26,22 +26,29 @@
 
 8.-el método domina - prueba 15
 
-
+	NO HACE FALTA
 
 9.-el propio método mejorar - prueba 16
 
-
+	HECHO
 
 10.-número de charcos - prueba 17
 
+	HECHO
+
 11.-evaluaciones por charco - prueba 18
 
+	HECHO
+
 12.-introducir un nuevo data_set - prueba 19
+
+	NO HACE FALTA
 
 Parar aquí
 
 13.-sincluir límite de esfuerzo - prueba 22
 
+	
 
 
 
